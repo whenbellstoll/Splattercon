@@ -22,8 +22,19 @@ public class MenuButtonHandler : MonoBehaviour
         SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
     }
 
-    public void AboutButton()
+    public void AboutButton(GameObject aboutMenu)
     {
+
+		gameObject.transform.parent.gameObject.SetActive(false);
+		aboutMenu.SetActive(true);
+
+    }
+	
+	public void BackButton(GameObject mainMenu)
+    {
+
+		gameObject.transform.parent.gameObject.SetActive(false);
+		mainMenu.SetActive(true);
 
     }
 
