@@ -2,33 +2,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void FinalNodeCallback(GameObject obj);
+
 public class FollowPath : MonoBehaviour
 {
     [SerializeField]
     List<GameObject> nodes;
     GameObject currentNode;
     GameObject previousNode;
-    public int nodeIndex;
-    public bool atTargetNode;
-    public Vector3 vehiclePosition;
-    public Vector3 acceleration;
-    public Vector3 velocity;
+    private int nodeIndex = -1;
+    private bool atTargetNode;
+    private Vector3 vehiclePosition;
+    private Vector3 acceleration;
+    private Vector3 velocity;
+
+    private float _pauseTimer = 0;
+
+    public FinalNodeCallback FinalNodeReached;
 
     // Use this for initialization
     void Start()
     {
         vehiclePosition = transform.position;
-        nodeIndex = 0;
-        currentNode = nodes[nodeIndex];
-        previousNode = nodes[nodes.Count - 1];
-        atTargetNode = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        PathFollow(nodes);
-        TargetReached();
+        if (nodeIndex != -1)
+        {
+            if (_pauseTimer > 0)
+            {
+                _pauseTimer -= Time.deltaTime;
+            }
+            else
+            {
+                PathFollow(nodes);
+                TargetReached();
+            }
+        }
 
         //Force movement
         //acceleration is the sum of the forces, need to clamp and divide
@@ -36,6 +48,15 @@ public class FollowPath : MonoBehaviour
         
       
         transform.position = vehiclePosition;
+    }
+
+    public void SetNodes(List<GameObject> newnodes)
+    {
+        nodes = newnodes;
+        nodeIndex = 0;
+        currentNode = nodes[nodeIndex];
+        previousNode = nodes[nodes.Count - 1];
+        atTargetNode = false;
     }
 
     void PathFollow(List<GameObject> path)
@@ -51,10 +72,16 @@ public class FollowPath : MonoBehaviour
             nodeIndex++;
             if (nodeIndex >= path.Count)
             {
-                nodeIndex = 0;
+                FinalNodeReached?.Invoke(gameObject);
+                nodeIndex = -1;
             }
-            currentNode = path[nodeIndex];
-            atTargetNode = false;
+            else
+            {
+                currentNode = path[nodeIndex];
+                atTargetNode = false;
+                _pauseTimer = 0.5f;
+                velocity = Vector3.zero;
+            }
         }
     }
 
@@ -62,7 +89,7 @@ public class FollowPath : MonoBehaviour
     {
         Vector3 distance = currentNode.transform.position - transform.position;
         distance = new Vector3(distance.x, distance.y, 0);
-        if (distance.magnitude <= 0.5f)
+        if (distance.sqrMagnitude <= 0.5f * 0.5f)
         {
             atTargetNode = true;
         }
@@ -89,7 +116,4 @@ public class FollowPath : MonoBehaviour
             velocity = desiredVelocity * 3;
         }
     }
-
-    
-
 }
