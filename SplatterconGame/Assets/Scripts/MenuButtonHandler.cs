@@ -42,4 +42,10 @@ public class MenuButtonHandler : MonoBehaviour
     {
         Application.Quit();
     }
+
+    public void MenuButton()
+    {
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+    }
+
 }
