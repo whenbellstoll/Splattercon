@@ -18,27 +18,16 @@ public class CastSpell : MonoBehaviour
     {
         _mainCamera = Camera.main;
         current = 0;
+        //spells ;
     }
 
     // Update is called once per frame
     void Update()
     {
         Vector2 mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
-
-        if (Input.GetKey("up") && current < spells.Length)
-        {
-            //current++;
-
-        }
-        else if (Input.GetKey("down") && current > 0)
-        {
-            //current--;
-        }
-
         if (Input.GetMouseButtonDown(1))
         {
-            //Destroy(, 3.0f);
-            Instantiate(spells[2], mousePos, Quaternion.identity);
+            Destroy(Instantiate(spells[current], mousePos, Quaternion.identity), 3.0f);
         }
 
     }

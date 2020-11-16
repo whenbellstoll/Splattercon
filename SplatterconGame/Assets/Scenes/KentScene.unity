@@ -202,7 +202,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &585675819
 GameObject:
@@ -347,7 +347,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &900960066
 GameObject:
@@ -461,7 +461,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1659341351}
+      - m_Target: {fileID: 0}
         m_MethodName: DamageSpell
         m_Mode: 1
         m_Arguments:
@@ -617,7 +617,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1659341351}
+      - m_Target: {fileID: 0}
         m_MethodName: SlowSpell
         m_Mode: 1
         m_Arguments:
@@ -693,7 +693,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1156853391
 GameObject:
@@ -830,11 +830,6 @@ MonoBehaviour:
   - {fileID: 1923669597}
   - {fileID: 590024875}
   - {fileID: 1278798855}
-  nodeIndex: 0
-  atTargetNode: 0
-  vehiclePosition: {x: 0, y: 0, z: 0}
-  acceleration: {x: 0, y: 0, z: 0}
-  velocity: {x: 0, y: 0, z: 0}
 --- !u!212 &1159213724
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -959,7 +954,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1659341350
 MonoBehaviour:
@@ -973,10 +968,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 814308db48fe16b46b7ef617d74b92f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _placingPrefab: {fileID: 4107944062364340076, guid: 5da547bbd32ee3f49a4251ec63ba9c6b,
-    type: 3}
-  _previewSprite: {fileID: 776735085}
-  _placedObjectContainer: {fileID: 1107111785}
 --- !u!114 &1659341351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -991,7 +982,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spells:
   - {fileID: 8113310737663664578, guid: ab8b2f91df8c5d64cbd06d6c66ec0aae, type: 3}
-  - {fileID: 82509342901751360, guid: 2bade540171772044a6c7c89912d73f6, type: 3}
   - {fileID: 82509342901751360, guid: 2bade540171772044a6c7c89912d73f6, type: 3}
 --- !u!1 &1923669597
 GameObject:
@@ -1212,6 +1202,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 295196401302169228, guid: 805fcf805d5cf1e4fbb3b2f969ec6a5c,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059662226597064917, guid: 805fcf805d5cf1e4fbb3b2f969ec6a5c,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8059662226597064917, guid: 805fcf805d5cf1e4fbb3b2f969ec6a5c,
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
