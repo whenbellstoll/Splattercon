@@ -8,17 +8,17 @@ public class CastSpell : MonoBehaviour
 {
     private Camera _mainCamera;
 
-    private int current;
+    private GameObject current;
 
-    public GameObject[] spells;
+    public GameObject spellOne;
+    public GameObject spellTwo;
 
 
     // Start is called before the first frame update
     void Start()
     {
         _mainCamera = Camera.main;
-        current = 0;
-        //spells ;
+        current = spellOne;
     }
 
     // Update is called once per frame
@@ -27,18 +27,18 @@ public class CastSpell : MonoBehaviour
         Vector2 mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
         if (Input.GetMouseButtonDown(1))
         {
-            Destroy(Instantiate(spells[current], mousePos, Quaternion.identity), 3.0f);
+            Destroy(Instantiate(current, mousePos, Quaternion.identity), 3.0f);
         }
 
     }
 
     public void DamageSpell()
     {
-        current = 0;
+        current = spellOne;
     }
 
     public void SlowSpell()
     {
-        current = 1;
+        current = spellTwo;
     }
 }

@@ -375,6 +375,8 @@ RectTransform:
   m_Children:
   - {fileID: 1320672329}
   - {fileID: 1537663649}
+  - {fileID: 156153643}
+  - {fileID: 982934813}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -602,11 +604,11 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 156153642}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalPosition: {x: 0, y: 0, z: 11.000143}
   m_LocalScale: {x: 0.9611534, y: 0.9611534, z: 0.9611534}
   m_Children: []
-  m_Father: {fileID: 1320672329}
-  m_RootOrder: 0
+  m_Father: {fileID: 69479361}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -656,7 +658,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 978680785}
+      - m_Target: {fileID: 0}
         m_MethodName: SlowSpell
         m_Mode: 1
         m_Arguments:
@@ -734,7 +736,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1320672329}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1005,7 +1007,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1320672329}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1441,9 +1443,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 404dd77bc97badb4896091da4195539c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spells:
-  - {fileID: 8113310737663664578, guid: ab8b2f91df8c5d64cbd06d6c66ec0aae, type: 3}
-  - {fileID: 82509342901751360, guid: 2bade540171772044a6c7c89912d73f6, type: 3}
+  spellOne: {fileID: 8113310737663664578, guid: ab8b2f91df8c5d64cbd06d6c66ec0aae,
+    type: 3}
+  spellTwo: {fileID: 82509342901751360, guid: 2bade540171772044a6c7c89912d73f6, type: 3}
 --- !u!1 &982934812
 GameObject:
   m_ObjectHideFlags: 0
@@ -1471,11 +1473,11 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 982934812}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
-  m_LocalScale: {x: 0.961212, y: 0.961212, z: 0.961212}
+  m_LocalPosition: {x: 0, y: 0, z: 11.000143}
+  m_LocalScale: {x: 0.96121204, y: 0.96121204, z: 0.96121204}
   m_Children: []
-  m_Father: {fileID: 1320672329}
-  m_RootOrder: 1
+  m_Father: {fileID: 69479361}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1525,7 +1527,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 978680785}
+      - m_Target: {fileID: 0}
         m_MethodName: DamageSpell
         m_Mode: 1
         m_Arguments:
@@ -1637,7 +1639,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1320672329}
-  m_RootOrder: 3
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1822,8 +1824,6 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 156153643}
-  - {fileID: 982934813}
   - {fileID: 320483819}
   - {fileID: 1083322066}
   - {fileID: 518700835}

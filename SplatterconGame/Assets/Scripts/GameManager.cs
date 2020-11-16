@@ -42,6 +42,12 @@ public class GameManager : MonoBehaviour
     private float _enemySpawnDelay;
     private float _enemySpawnTimer;
 
+    [Header("Spell Stuff")]
+    [SerializeField]
+    private GameObject _damageSpell;
+    [SerializeField]
+    private GameObject _slowSpell;
+
     [Header("Other stuff")]
     [SerializeField]
     private TextMeshProUGUI _roundText;
@@ -114,7 +120,7 @@ public class GameManager : MonoBehaviour
                         _enemySpawnTimer = 0;
                         _enemiesSpawned++;
                     }
-
+                    
                     _enemySpawnTimer += Time.deltaTime;
                 }
                 break;
