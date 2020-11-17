@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 enum GameState { BoothPlacing, Playing, RoundEnd}
@@ -12,7 +13,7 @@ public class GameManager : MonoBehaviour
 	
     [Header("Booth Stuff")]
     [SerializeField]
-    private TextMeshProUGUI _boothPlacingText;
+    private Text _boothPlacingText;
     [SerializeField]
     private GameObject _boothPrefab;
     [SerializeField]
@@ -47,24 +48,29 @@ public class GameManager : MonoBehaviour
     private float _enemySpawnDelay;
     private float _enemySpawnTimer;
 
-    [Header("Spell Stuff")]
-    [SerializeField]
-    private GameObject _damageSpell;
-    [SerializeField]
-    private GameObject _slowSpell;
+    //[Header("Spell Stuff")]
+    //[SerializeField]
+    //private GameObject _damageSpell;
+    //[SerializeField]
+    //private GameObject _slowSpell;
 
     [Header("Other stuff")]
     [SerializeField]
-    private TextMeshProUGUI _roundText;
+    private Text _roundText;
     [SerializeField]
-    private TextMeshProUGUI _moneyText;
+    private Text _moneyText;
     [SerializeField]
-
-    private TextMeshProUGUI _totalAttendeesText;
-    [SerializeField]
-    private TextMeshProUGUI _attendeesNeededText;
-    [SerializeField]
-    private TextMeshProUGUI _attendeesPassedText;
+    private Text _attendeeText;
+	[SerializeField]
+    private RectTransform _attendeeBar;
+	[SerializeField]
+    private int _maxAttendeeBarSize;
+	[SerializeField]
+	private float _attendeeBarInitialX; 
+    //[SerializeField]
+    //private Text _attendeesNeededText;
+    //[SerializeField]
+    //private Text _attendeesPassedText;
 	[SerializeField]
     private GameObject _pauseMenu;
 
@@ -102,7 +108,7 @@ public class GameManager : MonoBehaviour
                         }
                         else
                         {
-                            _boothPlacingText.text = "Booths: " + _boothsRemaining;
+                            _boothPlacingText.text = "x" + _boothsRemaining;
                             _placing.StartPlacing(_boothPrefab, _boothContainer);
                         }
                     }
@@ -179,8 +185,8 @@ public class GameManager : MonoBehaviour
                 _round++;
                 _boothsRemaining = 3 + _round / 2;
                 _boothPlacingText.gameObject.SetActive(true);
-                _boothPlacingText.text = "Booths: " + _boothsRemaining;
-                _roundText.text = "Round: " + _round;
+                _boothPlacingText.text = "x" + _boothsRemaining;
+                _roundText.text = "Round " + _round;
                 _placing.StartPlacing(_boothPrefab, _boothContainer);
                 //Set Attendee values
                 _attendeeSpawnDelay = 0.5f;
@@ -337,7 +343,7 @@ public class GameManager : MonoBehaviour
     private void AttendeePassed(GameObject attendee)
     {
         _money += 50;
-        _moneyText.text = "Money: " + _money;
+        _moneyText.text = "$" + _money;
         _attendeesPassed++;
         Destroy(attendee);
         UpdateAttendeeText();
@@ -364,16 +370,30 @@ public class GameManager : MonoBehaviour
     //Update attendee text
     private void UpdateAttendeeText()
     {
-        _totalAttendeesText.text = "Total Attendees: " + _attendeeCount;
-        _attendeesNeededText.text = "Attendees Needed: " + _requiredAttendees;
-        _attendeesPassedText.text = "Attendees Passed: " + _attendeesPassed;
+        //_totalAttendeesText.text = "Total Attendees: " + _attendeeCount;
+        //_attendeesNeededText.text = "Attendees Needed: " + _requiredAttendees;
+        //_attendeesPassedText.text = "Attendees Passed: " + _attendeesPassed;
+		_attendeeText.text = _attendeesPassed + " / " + _requiredAttendees;
+		//_maxAttendeeBarSize
+		//_attendeeBar
+		
         if(_attendeesPassed >= _requiredAttendees)
         {
-            _attendeesPassedText.color = Color.green;
+			int width = _maxAttendeeBarSize;
+			
+            _attendeeText.color = Color.green;
+			_attendeeBar.sizeDelta = new Vector2(width, _attendeeBar.sizeDelta.y);
+			_attendeeBar.position = new Vector3((width / 2) + _attendeeBarInitialX, _attendeeBar.position.y, _attendeeBar.position.z);
+			
         }
         else
         {
-            _attendeesPassedText.color = Color.red;
+			int width = (int)(((float)_attendeesPassed / (float)_requiredAttendees) * _maxAttendeeBarSize);
+			
+            _attendeeText.color = Color.red;
+			_attendeeBar.sizeDelta = new Vector2(width, _attendeeBar.sizeDelta.y);
+			Debug.Log((width / 2) + _attendeeBarInitialX);
+			_attendeeBar.position = new Vector3((width / 2) + _attendeeBarInitialX, _attendeeBar.position.y, _attendeeBar.position.z);
         }
     }
 
