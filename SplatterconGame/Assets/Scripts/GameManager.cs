@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
     private List<GameObject> _attendeePath;
     private int _attendeeCount;
     private int _attendeesSpawned;
+    private int _requiredAttendees;
+    private int _attendeesPassed;
     private float _attendeeSpawnDelay;
     private float _attendeeSpawnTimer;
 
@@ -53,6 +55,12 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI _roundText;
     [SerializeField]
     private TextMeshProUGUI _moneyText;
+    [SerializeField]
+    private TextMeshProUGUI _totalAttendeesText;
+    [SerializeField]
+    private TextMeshProUGUI _attendeesNeededText;
+    [SerializeField]
+    private TextMeshProUGUI _attendeesPassedText;
 
     private int _money = 0;
 
@@ -141,21 +149,28 @@ public class GameManager : MonoBehaviour
                 _boothPlacingText.text = "Booths: " + _boothsRemaining;
                 _roundText.text = "Round: " + _round;
                 _placing.StartPlacing(_boothPrefab, _boothContainer);
+                //Set Attendee values
+                _attendeeSpawnDelay = 0.5f;
+                _attendeeSpawnTimer = _attendeeSpawnDelay;
+                _attendeeCount = 8 + 2 * _round;
+                _attendeesSpawned = 0;
+                _requiredAttendees = (int)(_attendeeCount * 0.5f);
+                _attendeesPassed = 0;
+
+                //Set up enemy values
+                _enemySpawnDelay = 4f - 3f * (1 / Mathf.Sqrt(_round));
+                _enemySpawnTimer = _enemySpawnDelay - 2.0f;
+                _enemyCount = 3 + 1 * (_round / 2);
+                _enemiesSpawned = 0;
+
+                UpdateAttendeeText();
+                RandomizeSpawns();
                 break;
             case GameState.Playing:
                 Debug.Log("Now Playing");
                 //Set up attendee values
                 SetAttendeePath();
-                _attendeeSpawnDelay = 0.5f;
-                _attendeeSpawnTimer = _attendeeSpawnDelay;
-                _attendeeCount = 10;
-                _attendeesSpawned = 0;
 
-                //Set up enemy values
-                _enemySpawnDelay = 4f;
-                _enemySpawnTimer = _enemySpawnDelay - 2.0f;
-                _enemyCount = 4;
-                _enemiesSpawned = 0;
                 break;
         }
     }
@@ -290,7 +305,9 @@ public class GameManager : MonoBehaviour
     {
         _money += 50;
         _moneyText.text = "Money: " + _money;
+        _attendeesPassed++;
         Destroy(attendee);
+        UpdateAttendeeText();
     }
 
     //Clears booths
@@ -302,11 +319,81 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //Clears enemies
     private void ClearEnemies()
     {
         foreach(Transform enemy in _enemyContainer.transform)
         {
             Destroy(enemy.gameObject);
+        }
+    }
+
+    //Update attendee text
+    private void UpdateAttendeeText()
+    {
+        _totalAttendeesText.text = "Total Attendees: " + _attendeeCount;
+        _attendeesNeededText.text = "Attendees Needed: " + _requiredAttendees;
+        _attendeesPassedText.text = "Attendees Passed: " + _attendeesPassed;
+        if(_attendeesPassed >= _requiredAttendees)
+        {
+            _attendeesPassedText.color = Color.green;
+        }
+        else
+        {
+            _attendeesPassedText.color = Color.red;
+        }
+    }
+
+
+    //Randomize spawns
+    private void RandomizeSpawns()
+    {
+        //Randomize start node
+        if (Random.Range(0, 2) == 0)
+        {
+            if (Random.Range(0, 2) == 0)
+                _startNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.max.y + 2);
+            else
+                _startNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.min.y - 2);
+        }
+        else
+        {
+            if (Random.Range(0, 2) == 0)
+                _startNode.transform.position = new Vector2(_placing.ScreenBounds.min.x - 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
+            else
+                _startNode.transform.position = new Vector2(_placing.ScreenBounds.max.x + 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
+        }
+
+        //Randomize end node
+        if (Random.Range(0, 2) == 0)
+        {
+            if (Random.Range(0, 2) == 0)
+                _endNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.max.y + 2);
+            else
+                _endNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.min.y - 2);
+        }
+        else
+        {
+            if (Random.Range(0, 2) == 0)
+                _endNode.transform.position = new Vector2(_placing.ScreenBounds.min.x - 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
+            else
+                _endNode.transform.position = new Vector2(_placing.ScreenBounds.max.x + 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
+        }
+
+        //Randomize enemy spawn node
+        if (Random.Range(0, 2) == 0)
+        {
+            if (Random.Range(0, 2) == 0)
+                _spawnNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.max.y + 2);
+            else
+                _spawnNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.min.y - 2);
+        }
+        else
+        {
+            if (Random.Range(0, 2) == 0)
+                _spawnNode.transform.position = new Vector2(_placing.ScreenBounds.min.x - 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
+            else
+                _spawnNode.transform.position = new Vector2(_placing.ScreenBounds.max.x + 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
         }
     }
 }

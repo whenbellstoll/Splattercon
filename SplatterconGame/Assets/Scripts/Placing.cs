@@ -23,6 +23,7 @@ public class Placing : MonoBehaviour
 
     private Camera _mainCamera;
     private Bounds _screenBounds;
+    public Bounds ScreenBounds => _screenBounds;
     private float _boundsMargin = 1.0f;
 
     // Start is called before the first frame update
@@ -132,9 +133,9 @@ public class Placing : MonoBehaviour
     public bool CanPlace(Vector2 pos)
     {
         //Make sure another object is not in that space
-        for (int i = 0; i < _defaultPlacedObjectContainer.transform.childCount; i++)
+        for (int i = 0; i < _placedObjectContainer.transform.childCount; i++)
         {
-            if (pos == (Vector2)_defaultPlacedObjectContainer.transform.GetChild(i).position)
+            if (pos == (Vector2)_placedObjectContainer.transform.GetChild(i).position)
                 return false;
         }
 
