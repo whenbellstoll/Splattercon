@@ -53,6 +53,8 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI _roundText;
     [SerializeField]
     private TextMeshProUGUI _moneyText;
+    [SerializeField]
+    private GameObject _pauseMenu;
 
     private int _money = 0;
 
@@ -60,6 +62,7 @@ public class GameManager : MonoBehaviour
     private Placing _placing;
     private int _round = 0;
     private int _boothsRemaining = 0;
+    private bool _paused = false;
 
     // Start is called before the first frame update
     void Start()
@@ -71,60 +74,76 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        switch(_gameState)
+
+        if (!_paused)
         {
-            case GameState.BoothPlacing:
-                //Keep placing booths until all booths are placed
-                if(!_placing.IsPlacing)
-                {
-                    _boothsRemaining--;
-                    if(_boothsRemaining == 0)
+            switch (_gameState)
+            {
+                case GameState.BoothPlacing:
+                    //Keep placing booths until all booths are placed
+                    if (!_placing.IsPlacing)
                     {
-                        _boothPlacingText.gameObject.SetActive(false);
-                        SetGameState(GameState.Playing);
+                        _boothsRemaining--;
+                        if (_boothsRemaining == 0)
+                        {
+                            _boothPlacingText.gameObject.SetActive(false);
+                            SetGameState(GameState.Playing);
+                        }
+                        else
+                        {
+                            _boothPlacingText.text = "Booths: " + _boothsRemaining;
+                            _placing.StartPlacing(_boothPrefab, _boothContainer);
+                        }
                     }
-                    else
+                    break;
+                case GameState.Playing:
+                    if (_attendeesSpawned < _attendeeCount)
                     {
-                        _boothPlacingText.text = "Booths: " + _boothsRemaining;
-                        _placing.StartPlacing(_boothPrefab, _boothContainer);
+                        if (_attendeeSpawnTimer > _attendeeSpawnDelay)
+                        {
+                            //Spawn an attendee
+                            GameObject attendee = Instantiate(_attendeePrefab, _attendeePath[0].transform.position, Quaternion.identity, _attendeeContainer.transform);
+                            attendee.GetComponent<FollowPath>().SetNodes(_attendeePath);
+                            attendee.GetComponent<FollowPath>().FinalNodeReached = AttendeePassed;
+                            _attendeeSpawnTimer = 0;
+                            _attendeesSpawned++;
+                        }
+
+                        _attendeeSpawnTimer += Time.deltaTime;
                     }
-                }
-                break;
-            case GameState.Playing:
-                if(_attendeesSpawned < _attendeeCount)
-                {
-                    if(_attendeeSpawnTimer > _attendeeSpawnDelay)
+                    else if (_attendeeContainer.transform.childCount == 0)
                     {
-                        //Spawn an attendee
-                        GameObject attendee = Instantiate(_attendeePrefab, _attendeePath[0].transform.position, Quaternion.identity, _attendeeContainer.transform);
-                        attendee.GetComponent<FollowPath>().SetNodes(_attendeePath);
-                        attendee.GetComponent<FollowPath>().FinalNodeReached = AttendeePassed;
-                        _attendeeSpawnTimer = 0;
-                        _attendeesSpawned++;
+                        SetGameState(GameState.BoothPlacing);
                     }
 
-                    _attendeeSpawnTimer += Time.deltaTime;
-                }
-                else if(_attendeeContainer.transform.childCount == 0 )
-                {
-                    SetGameState(GameState.BoothPlacing);
-                }
-
-                if (_enemiesSpawned < _enemyCount)
-                {
-                    if (_enemySpawnTimer > _enemySpawnDelay)
+                    if (_enemiesSpawned < _enemyCount)
                     {
-                        //Spawn an attendee
-                        GameObject enemy = Instantiate(_enemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                        if (_enemySpawnTimer > _enemySpawnDelay)
+                        {
+                            //Spawn an attendee
+                            GameObject enemy = Instantiate(_enemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
 
-                        _enemySpawnTimer = 0;
-                        _enemiesSpawned++;
+                            _enemySpawnTimer = 0;
+                            _enemiesSpawned++;
+                        }
+
+                        _enemySpawnTimer += Time.deltaTime;
                     }
-                    
-                    _enemySpawnTimer += Time.deltaTime;
-                }
-                break;
+                    break;
+            }
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && !_paused)
+        {
+            _pauseMenu.SetActive(true);
+            _paused = true;
+        }
+        else if(Input.GetKeyDown(KeyCode.Escape) && _paused)
+        {
+            _pauseMenu.SetActive(false);
+            _paused = false;
+        }
+
     }
 
     private void SetGameState(GameState state)
