@@ -71,7 +71,7 @@ public class Placing : MonoBehaviour
             }
 
             //If esc is pressed exit placing mode
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.E))
             {
                 _previewSprite.gameObject.SetActive(false);
                 _placing = false;

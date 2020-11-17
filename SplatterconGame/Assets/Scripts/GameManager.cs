@@ -7,6 +7,9 @@ enum GameState { BoothPlacing, Playing, RoundEnd}
 
 public class GameManager : MonoBehaviour
 {
+	
+	public static bool PAUSED = false;
+	
     [Header("Booth Stuff")]
     [SerializeField]
     private TextMeshProUGUI _boothPlacingText;
@@ -62,6 +65,7 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI _attendeesNeededText;
     [SerializeField]
     private TextMeshProUGUI _attendeesPassedText;
+	[SerializeField]
     private GameObject _pauseMenu;
 
     private int _money = 0;
@@ -70,7 +74,6 @@ public class GameManager : MonoBehaviour
     private Placing _placing;
     private int _round = 0;
     private int _boothsRemaining = 0;
-    private bool _paused = false;
 
     // Start is called before the first frame update
     void Start()
@@ -83,7 +86,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
-        if (!_paused)
+        if (!PAUSED)
         {
             switch (_gameState)
             {
@@ -141,18 +144,29 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape) && !_paused)
+        if (Input.GetKeyDown(KeyCode.Escape) && !PAUSED)
         {
-            _pauseMenu.SetActive(true);
-            _paused = true;
+            PauseGame();
         }
-        else if(Input.GetKeyDown(KeyCode.Escape) && _paused)
+        else if(Input.GetKeyDown(KeyCode.Escape) && PAUSED)
         {
-            _pauseMenu.SetActive(false);
-            _paused = false;
+            ResumeGame();
         }
 
     }
+	
+	private void PauseGame(){
+		_pauseMenu.SetActive(true);
+        PAUSED = true;
+		Time.timeScale = 0f;
+	}
+	
+	
+	private void ResumeGame(){
+		_pauseMenu.SetActive(false);
+		PAUSED = false;
+		Time.timeScale = 1.0f;
+	}
 
     private void SetGameState(GameState state)
     {
