@@ -4879,9 +4879,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1942317625661231963}
-  - component: {fileID: 2080240407660082333}
   - component: {fileID: 6135069249644476326}
   - component: {fileID: 7092934427892485027}
+  - component: {fileID: 5718489095831436697}
   m_Layer: 0
   m_Name: Damage_Spell
   m_TagString: Untagged
@@ -4904,21 +4904,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2080240407660082333
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8113310737663664578}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 854e1567466b2a2488186b94401f6535, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  segments: 50
-  xradius: 5
-  yradius: 5
 --- !u!120 &6135069249644476326
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -5031,3 +5016,15 @@ MonoBehaviour:
   segments: 50
   xradius: 1
   yradius: 1
+--- !u!114 &5718489095831436697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8113310737663664578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 576611ab641f49646948d260643a957b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

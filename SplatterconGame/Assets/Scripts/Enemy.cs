@@ -128,6 +128,25 @@ public class Enemy : MonoBehaviour
     }
 
     /// <summary>
+    /// Changes the speed of the enemy for an amount of time
+    /// </summary>
+    /// <param name="speed">float value to change _maxSpeed</param>
+    /// <param name="time">float value for how long speed will be changed</param>
+    public void ChangeSpeed(float speed, float time)
+    {
+        time -= Time.deltaTime;
+        if(time > 0)
+        {
+           _maxSpeed = speed;
+        }
+        else
+        {
+            speed = 5.0f;
+        }
+        
+    }
+
+    /// <summary>
     /// Checks if there is an obstical in the enemy's path
     /// </summary>
     /// <returns>If enemy's path is interuptted</returns>

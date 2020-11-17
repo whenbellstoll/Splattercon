@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DamageSpell : MonoBehaviour
+public class SlowSpell : MonoBehaviour
 {
     private GameManager _gm;
     float time;
@@ -17,11 +17,11 @@ public class DamageSpell : MonoBehaviour
     void Update()
     {
         time += Time.deltaTime;
-        if(time > 0.5f)
+        if (time > 0.5f)
         {
-            _gm.ApplyDamage(transform.position, 50);
+            _gm.ApplySlow(transform.position, 0.1f, 10f);
             time = 0;
         }
-        
+
     }
 }

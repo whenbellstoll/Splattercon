@@ -231,7 +231,36 @@ public class GameManager : MonoBehaviour
 
         return foundBooth;
     }
-    
+
+    //Applies damage to all enemies in a range of a spell
+    public void ApplyDamage(Vector2 pos, float dam)
+    {
+        HealthBar health;
+        foreach (Transform enemy in _enemyContainer.transform)
+        {
+            if (Vector2.Distance(enemy.position, pos) < 1)
+            {
+                health = enemy.GetComponent<HealthBar>();
+                health.TakeDamage(dam);
+            }
+        }
+    }
+
+    //Applies slow to all enemies in a range of a spell
+    public void ApplySlow(Vector2 pos, float speed, float time)
+    {
+        Enemy movement;
+        foreach (Transform enemy in _enemyContainer.transform)
+        {
+            if (Vector2.Distance(enemy.position, pos) < 1)
+            {
+                movement = enemy.GetComponent<Enemy>();
+                movement.ChangeSpeed(speed, time);
+
+            }
+        }
+    }
+
     //Sets the path for attendees
     private void SetAttendeePath()
     {
