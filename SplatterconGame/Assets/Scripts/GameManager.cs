@@ -105,6 +105,8 @@ public class GameManager : MonoBehaviour
                         {
                             _boothPlacingText.gameObject.SetActive(false);
                             SetGameState(GameState.Playing);
+                            _moneyText.transform.parent.gameObject.SetActive(false);
+                            _roundText.transform.parent.gameObject.SetActive(false);
                         }
                         else
                         {
@@ -131,6 +133,9 @@ public class GameManager : MonoBehaviour
                     else if (_attendeeContainer.transform.childCount == 0)
                     {
                         SetGameState(GameState.BoothPlacing);
+
+                        _moneyText.transform.parent.gameObject.SetActive(true);
+                        _roundText.transform.parent.gameObject.SetActive(true);
                     }
 
                     if (_enemiesSpawned < _enemyCount)
@@ -370,20 +375,15 @@ public class GameManager : MonoBehaviour
     //Update attendee text
     private void UpdateAttendeeText()
     {
-        //_totalAttendeesText.text = "Total Attendees: " + _attendeeCount;
-        //_attendeesNeededText.text = "Attendees Needed: " + _requiredAttendees;
-        //_attendeesPassedText.text = "Attendees Passed: " + _attendeesPassed;
 		_attendeeText.text = _attendeesPassed + " / " + _requiredAttendees;
-		//_maxAttendeeBarSize
-		//_attendeeBar
 		
         if(_attendeesPassed >= _requiredAttendees)
         {
 			int width = _maxAttendeeBarSize;
 			
             _attendeeText.color = Color.green;
-			_attendeeBar.sizeDelta = new Vector2(width, _attendeeBar.sizeDelta.y);
-			_attendeeBar.position = new Vector3((width / 2) + _attendeeBarInitialX, _attendeeBar.position.y, _attendeeBar.position.z);
+            _attendeeBar.sizeDelta = new Vector2(width, _attendeeBar.sizeDelta.y);
+			_attendeeBar.anchoredPosition = new Vector2((width / 2) + _attendeeBarInitialX, _attendeeBar.anchoredPosition.y);
 			
         }
         else
@@ -392,8 +392,7 @@ public class GameManager : MonoBehaviour
 			
             _attendeeText.color = Color.red;
 			_attendeeBar.sizeDelta = new Vector2(width, _attendeeBar.sizeDelta.y);
-			Debug.Log((width / 2) + _attendeeBarInitialX);
-			_attendeeBar.position = new Vector3((width / 2) + _attendeeBarInitialX, _attendeeBar.position.y, _attendeeBar.position.z);
+			_attendeeBar.anchoredPosition = new Vector2((width / 2) + _attendeeBarInitialX, _attendeeBar.anchoredPosition.y);
         }
     }
 
