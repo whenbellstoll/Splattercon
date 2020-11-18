@@ -19,9 +19,14 @@ public class SlowSpell : MonoBehaviour
         time += Time.deltaTime;
         if (time > 0.5f)
         {
-            _gm.ApplySlow(transform.position, 0.1f, 10f);
+            _gm.ApplySlow(transform.position, 0.1f);
             time = 0;
         }
+        
+    }
 
+    void OnDestroy()
+    {
+        _gm.ApplySlow(transform.position, 1f);
     }
 }

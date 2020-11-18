@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour
     private Vector2 _destination = Vector2.zero;
     protected HealthBar _healthBar;
     private GameManager _gm;
+    private float spellSpeed;
 
     private float _pauseTimer = 0;
 
@@ -25,6 +26,7 @@ public class Enemy : MonoBehaviour
         _healthBar = GetComponent<HealthBar>();
         _healthBar.SetMaxHealth(_maxHealth);
         _healthBar.UpdateHealth(_health);
+        spellSpeed = 1.0f;
     }
 
     // Update is called once per frame
@@ -108,6 +110,7 @@ public class Enemy : MonoBehaviour
         //Set up desired velocity
         desiredVelocity = desiredVelocity.normalized;
         desiredVelocity *= _maxSpeed;
+        desiredVelocity *= spellSpeed;
 
         //Calc steering force
         Vector2 steeringForce = desiredVelocity - _rb.velocity;
@@ -131,19 +134,9 @@ public class Enemy : MonoBehaviour
     /// Changes the speed of the enemy for an amount of time
     /// </summary>
     /// <param name="speed">float value to change _maxSpeed</param>
-    /// <param name="time">float value for how long speed will be changed</param>
-    public void ChangeSpeed(float speed, float time)
+    public void ChangeSpeed(float speed)
     {
-        time -= Time.deltaTime;
-        if(time > 0)
-        {
-           _maxSpeed = speed;
-        }
-        else
-        {
-            speed = 5.0f;
-        }
-        
+        spellSpeed = speed;
     }
 
     /// <summary>

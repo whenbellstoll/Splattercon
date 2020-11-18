@@ -320,15 +320,15 @@ public class GameManager : MonoBehaviour
     }
 
     //Applies slow to all enemies in a range of a spell
-    public void ApplySlow(Vector2 pos, float speed, float time)
+    public void ApplySlow(Vector2 pos, float speed)
     {
         Enemy movement;
         foreach (Transform enemy in _enemyContainer.transform)
         {
-            if (Vector2.Distance(enemy.position, pos) < 1)
+            if (Vector2.Distance(enemy.position, pos) < 10)
             {
                 movement = enemy.GetComponent<Enemy>();
-                movement.ChangeSpeed(speed, time);
+                movement.ChangeSpeed(speed);
 
             }
         }
