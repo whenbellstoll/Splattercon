@@ -81,6 +81,8 @@ public class GameManager : MonoBehaviour
     private int _round = 0;
     private int _boothsRemaining = 0;
 
+    private const float MIN_SPAWN_NODE_DISTANCE = 4.0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -91,7 +93,6 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         if (!PAUSED)
         {
             switch (_gameState)
@@ -111,7 +112,7 @@ public class GameManager : MonoBehaviour
                         else
                         {
                             _boothPlacingText.text = "x" + _boothsRemaining;
-                            _placing.StartPlacing(_boothPrefab, _boothContainer);
+                            _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
                         }
                     }
                     break;
@@ -179,6 +180,18 @@ public class GameManager : MonoBehaviour
 		Time.timeScale = 1.0f;
 	}
 
+    private bool CanPlaceBooth(Vector2 pos)
+    {
+        for(int i = 0; i < _boothContainer.transform.childCount; i++)
+        {
+            if(Vector2.SqrMagnitude(pos - (Vector2)_boothContainer.transform.GetChild(i).transform.position) <= 1.0f)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void SetGameState(GameState state)
     {
         _gameState = state;
@@ -192,7 +205,7 @@ public class GameManager : MonoBehaviour
                 _boothPlacingText.gameObject.SetActive(true);
                 _boothPlacingText.text = "x" + _boothsRemaining;
                 _roundText.text = "Round " + _round;
-                _placing.StartPlacing(_boothPrefab, _boothContainer);
+                _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
                 //Set Attendee values
                 _attendeeSpawnDelay = 0.5f;
                 _attendeeSpawnTimer = _attendeeSpawnDelay;
@@ -249,6 +262,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < _attendeeContainer.transform.childCount; i++)
         {
             Vector2 attendeepos = _attendeeContainer.transform.GetChild(i).position;
+            if (!_placing.ScreenBounds.Contains(attendeepos)) continue;
             if (Vector2.SqrMagnitude(pos - attendeepos) < closestDist)
             {
                 closestDist = Vector2.SqrMagnitude(pos - attendeepos);
@@ -416,36 +430,44 @@ public class GameManager : MonoBehaviour
                 _startNode.transform.position = new Vector2(_placing.ScreenBounds.max.x + 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
         }
 
-        //Randomize end node
-        if (Random.Range(0, 2) == 0)
+        do
         {
+            //Randomize end node
             if (Random.Range(0, 2) == 0)
-                _endNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.max.y + 2);
+            {
+                if (Random.Range(0, 2) == 0)
+                    _endNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.max.y + 2);
+                else
+                    _endNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.min.y - 2);
+            }
             else
-                _endNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.min.y - 2);
+            {
+                if (Random.Range(0, 2) == 0)
+                    _endNode.transform.position = new Vector2(_placing.ScreenBounds.min.x - 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
+                else
+                    _endNode.transform.position = new Vector2(_placing.ScreenBounds.max.x + 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
+            }
         }
-        else
-        {
-            if (Random.Range(0, 2) == 0)
-                _endNode.transform.position = new Vector2(_placing.ScreenBounds.min.x - 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
-            else
-                _endNode.transform.position = new Vector2(_placing.ScreenBounds.max.x + 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
-        }
+        while (Vector2.SqrMagnitude(_startNode.transform.position - _endNode.transform.position) <= MIN_SPAWN_NODE_DISTANCE * MIN_SPAWN_NODE_DISTANCE);
 
-        //Randomize enemy spawn node
-        if (Random.Range(0, 2) == 0)
+        do
         {
+            //Randomize enemy spawn node
             if (Random.Range(0, 2) == 0)
-                _spawnNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.max.y + 2);
+            {
+                if (Random.Range(0, 2) == 0)
+                    _spawnNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.max.y + 2);
+                else
+                    _spawnNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.min.y - 2);
+            }
             else
-                _spawnNode.transform.position = new Vector2(Random.Range(_placing.ScreenBounds.min.x, _placing.ScreenBounds.max.x), _placing.ScreenBounds.min.y - 2);
+            {
+                if (Random.Range(0, 2) == 0)
+                    _spawnNode.transform.position = new Vector2(_placing.ScreenBounds.min.x - 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
+                else
+                    _spawnNode.transform.position = new Vector2(_placing.ScreenBounds.max.x + 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
+            }
         }
-        else
-        {
-            if (Random.Range(0, 2) == 0)
-                _spawnNode.transform.position = new Vector2(_placing.ScreenBounds.min.x - 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
-            else
-                _spawnNode.transform.position = new Vector2(_placing.ScreenBounds.max.x + 2, Random.Range(_placing.ScreenBounds.min.y, _placing.ScreenBounds.max.y));
-        }
+        while(Vector2.SqrMagnitude(_startNode.transform.position - _spawnNode.transform.position) <= MIN_SPAWN_NODE_DISTANCE * MIN_SPAWN_NODE_DISTANCE || Vector2.SqrMagnitude(_endNode.transform.position - _spawnNode.transform.position) <= MIN_SPAWN_NODE_DISTANCE * MIN_SPAWN_NODE_DISTANCE);
     }
 }

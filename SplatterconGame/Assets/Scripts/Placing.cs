@@ -118,9 +118,10 @@ public class Placing : MonoBehaviour
     }
 
     //Starts placing mode with given object and placing rule
-    public void StartPlacing(GameObject prefab, PlaceDel placingRule)
+    public void StartPlacing(GameObject prefab, GameObject container, PlaceDel placingRule)
     {
         _placingPrefab = prefab;
+        _placedObjectContainer = container;
         _previewSprite.gameObject.SetActive(true);
         _previewSprite.sprite = _placingPrefab.GetComponentInChildren<SpriteRenderer>().sprite;
         _previewSprite.transform.localScale = _placingPrefab.GetComponentInChildren<SpriteRenderer>().transform.lossyScale;
