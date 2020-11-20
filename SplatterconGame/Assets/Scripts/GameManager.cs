@@ -13,8 +13,6 @@ public class GameManager : MonoBehaviour
 	
     [Header("Booth Stuff")]
     [SerializeField]
-    private Text _boothPlacingText;
-    [SerializeField]
     private GameObject _boothPrefab;
     [SerializeField]
     private GameObject _boothContainer;
@@ -78,6 +76,7 @@ public class GameManager : MonoBehaviour
 
     private GameState _gameState;
     private Placing _placing;
+    private Selection _select;
     private int _round = 0;
     private int _boothsRemaining = 0;
 
@@ -87,6 +86,8 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         _placing = GetComponent<Placing>();
+        _select = GetComponent<Selection>();
+
         SetGameState(GameState.BoothPlacing);
     }
 
@@ -101,17 +102,15 @@ public class GameManager : MonoBehaviour
                     //Keep placing booths until all booths are placed
                     if (!_placing.IsPlacing)
                     {
-                        _boothsRemaining--;
-                        if (_boothsRemaining == 0)
+                        _select.DecrementCurrentSelection();
+                        if (_select.AllZero(SelectionGroups.BOOTH))
                         {
-                            _boothPlacingText.gameObject.SetActive(false);
                             SetGameState(GameState.Playing);
                             _moneyText.transform.parent.gameObject.SetActive(false);
                             _roundText.transform.parent.gameObject.SetActive(false);
                         }
                         else
                         {
-                            _boothPlacingText.text = "x" + _boothsRemaining;
                             _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
                         }
                     }
@@ -202,8 +201,7 @@ public class GameManager : MonoBehaviour
                 ClearEnemies();
                 _round++;
                 _boothsRemaining = 3 + _round / 2;
-                _boothPlacingText.gameObject.SetActive(true);
-                _boothPlacingText.text = "x" + _boothsRemaining;
+                _select.SetAmount(SelectionGroups.BOOTH, _boothsRemaining);
                 _roundText.text = "Round " + _round;
                 _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
                 //Set Attendee values
