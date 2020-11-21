@@ -94,7 +94,6 @@ public class Enemy : MonoBehaviour
             netForce = Vector2.zero;
         }
 
-
         //Debug.DrawLine(transform.position, transform.position + netForce, Color.red);
         _rb.AddForce(netForce);
     }
@@ -136,7 +135,8 @@ public class Enemy : MonoBehaviour
     /// <param name="speed">float value to change _maxSpeed</param>
     public void ChangeSpeed(float speed)
     {
-        spellSpeed = speed;
+        //spellSpeed = speed;
+        _rb.velocity *= speed;
     }
 
     /// <summary>

@@ -46,6 +46,13 @@ public class GameManager : MonoBehaviour
     private float _enemySpawnDelay;
     private float _enemySpawnTimer;
 
+    [Header("Trap Stuff")]
+    [SerializeField]
+    private GameObject _bearTrapPrefab;
+    [SerializeField]
+    private GameObject _trapContainer;
+
+
     //[Header("Spell Stuff")]
     //[SerializeField]
     //private GameObject _damageSpell;
@@ -79,6 +86,7 @@ public class GameManager : MonoBehaviour
     private Selection _select;
     private int _round = 0;
     private int _boothsRemaining = 0;
+    private int _trapsRemaining = 0;
 
     private const float MIN_SPAWN_NODE_DISTANCE = 4.0f;
 
@@ -112,10 +120,28 @@ public class GameManager : MonoBehaviour
                     //Keep placing booths until all booths are placed
                     if (!_placing.IsPlacing)
                     {
+                        
                         _select.DecrementCurrentSelection();
-
-                        // In the PlayButtonClicked method it already checks to see if we placed all the booths!
-                        _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
+                        switch (_select.GetCurrentSelectionName())
+                        {
+                            case "Vampire Booth":
+                                _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
+                                break;
+                            case "Bear Trap":
+                                if (!_select.IsZero())
+                                {
+                                    _placing.StartPlacing(_bearTrapPrefab, _trapContainer);
+                                }
+                                //Currently can not stop placing traps without clicking a button so you can place infinite traps
+                                else
+                                {
+                                    _placing.StartPlacing(_bearTrapPrefab, _trapContainer);
+                                }
+                                break;
+                            default:
+                                _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
+                                break;
+                        }
                     }
                     break;
                 case GameState.Playing:
@@ -220,6 +246,10 @@ public class GameManager : MonoBehaviour
                 _enemySpawnTimer = _enemySpawnDelay - 2.0f;
                 _enemyCount = 3 + 1 * (_round / 2);
                 _enemiesSpawned = 0;
+
+                //Set up Trap values
+                _trapsRemaining = 3 + _round / 2;
+                _select.SetAmount(SelectionGroups.TRAP, _trapsRemaining);
 
                 UpdateAttendeeText();
                 RandomizeSpawns();
@@ -326,13 +356,35 @@ public class GameManager : MonoBehaviour
         Enemy movement;
         foreach (Transform enemy in _enemyContainer.transform)
         {
-            if (Vector2.Distance(enemy.position, pos) < 10)
+            if (Vector2.Distance(enemy.position, pos) < 1.5f)
             {
                 movement = enemy.GetComponent<Enemy>();
                 movement.ChangeSpeed(speed);
 
             }
         }
+    }
+
+    //Bear trap script
+    public bool BearTrap(Vector2 pos, float speed)
+    {
+        Enemy current = null;
+        foreach (Transform enemy in _enemyContainer.transform)
+        {
+            if (current == null || (Vector2.Distance(enemy.position, pos) < Vector2.Distance(current.transform.position, pos)))
+            {
+                current = enemy.GetComponent<Enemy>();
+            }
+        }
+
+        if (current != null && Vector2.Distance(current.transform.position, pos) < .5f)
+        {
+            current.ChangeSpeed(speed);
+            current.transform.position = new Vector2(pos.x, pos.y);
+            return true;
+        }
+
+        return false;
     }
 
     //Sets the path for attendees

@@ -1,17 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public delegate bool PlaceDel(Vector2 pos);
 
 public class Placing : MonoBehaviour
 {
-    [SerializeField]
+    //[SerializeField]
     private GameObject _placingPrefab;
     [SerializeField]
     private SpriteRenderer _previewSprite;
     [SerializeField]
     private GameObject _defaultPlacedObjectContainer;
+    [SerializeField]
+    private RectTransform _playArea;
 
     public PlaceDel ExtraPlacingRule;
 
@@ -25,6 +28,9 @@ public class Placing : MonoBehaviour
     private Bounds _screenBounds;
     public Bounds ScreenBounds => _screenBounds;
     private float _boundsMargin = 1.0f;
+    private Selection _select;
+
+    Vector2 localPoint;
 
     // Start is called before the first frame update
     void Awake()
@@ -38,6 +44,8 @@ public class Placing : MonoBehaviour
             new Vector3(cameraHeight * screenAspect - 2 * _boundsMargin, cameraHeight - 2 * _boundsMargin, 0.1f));
 
         _previewSprite.gameObject.SetActive(false);
+
+        _select = GetComponent<Selection>();
     }
 
     // Update is called once per frame
@@ -146,12 +154,32 @@ public class Placing : MonoBehaviour
             return false;
         }
 
+        //Make sure mouse is within defined play area (Refer to play area rect transform in Canvas Two to see bounds)
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_playArea, Input.mousePosition, Camera.main, out localPoint);
+        if (!_playArea.rect.Contains(localPoint))
+        {
+            return false;
+        }
+
+        //Checks if you still have enough of the selected item
+        //This currently does not work because placing is not aware of how many objects can be placed 
+        if (_select.AllZero())
+        {
+            return false;
+        }
+
         //Add extra placing rules as necessary
         if (ExtraPlacingRule != null && ExtraPlacingRule(pos))
         {
             return false;
         }
 
+
         return true;
     }
 }
+
+
+
+
+
