@@ -99,20 +99,23 @@ public class GameManager : MonoBehaviour
             switch (_gameState)
             {
                 case GameState.BoothPlacing:
+
+                    if(_select.PlayButtonClicked() && _select.AllZero(SelectionGroups.BOOTH))
+                    {
+                        SetGameState(GameState.Playing);
+                        _moneyText.transform.parent.gameObject.SetActive(false);
+                        _roundText.transform.parent.gameObject.SetActive(false);
+                        _select.HideButtons();
+                    }
+
+
                     //Keep placing booths until all booths are placed
                     if (!_placing.IsPlacing)
                     {
                         _select.DecrementCurrentSelection();
-                        if (_select.AllZero(SelectionGroups.BOOTH))
-                        {
-                            SetGameState(GameState.Playing);
-                            _moneyText.transform.parent.gameObject.SetActive(false);
-                            _roundText.transform.parent.gameObject.SetActive(false);
-                        }
-                        else
-                        {
-                            _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
-                        }
+
+                        // In the PlayButtonClicked method it already checks to see if we placed all the booths!
+                        _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
                     }
                     break;
                 case GameState.Playing:

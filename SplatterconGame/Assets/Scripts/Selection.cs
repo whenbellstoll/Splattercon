@@ -38,6 +38,8 @@ public class Selection : MonoBehaviour
 
     private SelectionGroup _currentSelectedGroup;
 
+    private bool _playButtonClicked;
+
     void Awake()
     {
 
@@ -46,6 +48,7 @@ public class Selection : MonoBehaviour
         _trapButton.onClick.AddListener(TrapButton);
         _spellButton.onClick.AddListener(SpellButton);
         _selectionButton.onClick.AddListener(SelectionButton);
+        _playButton.onClick.AddListener(PlayButton);
 
         _selectionGroups = new List<SelectionGroup>();
         
@@ -115,6 +118,15 @@ public class Selection : MonoBehaviour
     void TrapButton()
     {
         UpdateSelection(SelectionGroups.TRAP);
+    }
+
+    void PlayButton()
+    {
+
+        if (AllZero(SelectionGroups.BOOTH))
+        {
+            _playButtonClicked = true;
+        }
     }
 
     void SelectionButton()
@@ -243,7 +255,7 @@ public class Selection : MonoBehaviour
 
 
     // Decrement the current selection by a value of 1
-    // !!! Very useful if when we place an object !!!
+    // !!! Very useful when we place an object !!!
     public void DecrementCurrentSelection()
     {
         if (_currentSelectedGroup is AmountSelectionGroup)
@@ -252,6 +264,28 @@ public class Selection : MonoBehaviour
             currentAmountSelection.DecrementAmount();
         }
         _currentSelectedGroup.UpdateSprites();
+    }
+
+
+    public void HideButtons()
+    {
+        _boothButton.gameObject.SetActive(false);
+        _trapButton.gameObject.SetActive(false);
+        _playButton.gameObject.SetActive(false);
+
+        _playButtonClicked = false;
+    }
+
+    public void ShowButtons()
+    {
+        _boothButton.gameObject.SetActive(true);
+        _trapButton.gameObject.SetActive(true);
+        _playButton.gameObject.SetActive(true);
+    }
+
+    public bool PlayButtonClicked()
+    {
+        return _playButtonClicked;
     }
 
     /*
