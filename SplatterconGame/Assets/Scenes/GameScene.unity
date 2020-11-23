@@ -2558,7 +2558,9 @@ MonoBehaviour:
   _ghostAttendeeContainer: {fileID: 75317630}
   _startNode: {fileID: 339309391}
   _endNode: {fileID: 997693392}
-  _enemyPrefab: {fileID: 7557892877204959912, guid: 805fcf805d5cf1e4fbb3b2f969ec6a5c,
+  _vampireEnemyPrefab: {fileID: 7557892877204959912, guid: 805fcf805d5cf1e4fbb3b2f969ec6a5c,
+    type: 3}
+  _ghostEnemyPrefab: {fileID: 7557892877204959912, guid: 0bd86b70efef45a4a968670ec15dfa50,
     type: 3}
   _enemyContainer: {fileID: 819992458}
   _spawnNode: {fileID: 1919531951}

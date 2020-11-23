@@ -2,8 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum EnemyType { Vampire, Ghost}
+
 public class Enemy : MonoBehaviour
 {
+    [SerializeField]
+    private EnemyType _type;
+
     private Rigidbody2D _rb;
     private float _maxSpeed = 5.0f;
     private float _maxHealth = 100;
@@ -40,7 +45,10 @@ public class Enemy : MonoBehaviour
 
     public void SeekAttendeeAI()
     {
-        _destination = _gm.GetNearestAttendee(transform.position, _gm.VampireAttendeeContainer);
+        if(_type == EnemyType.Vampire)
+            _destination = _gm.GetNearestAttendee(transform.position, _gm.VampireAttendeeContainer);
+        else
+            _destination = _gm.GetNearestAttendee(transform.position, _gm.GhostAttendeeContainer);
         Vector3 destination = _destination;
         //Check for obstacle
         if (CheckObstacle(new Vector2(_destination.x, _destination.y)))

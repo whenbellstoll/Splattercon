@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     private GameObject _ghostAttendeePrefab;
     [SerializeField]
     private GameObject _ghostAttendeeContainer;
+    public GameObject GhostAttendeeContainer => _ghostAttendeeContainer;
     [SerializeField]
     private GameObject _startNode;
     [SerializeField]
@@ -48,7 +49,9 @@ public class GameManager : MonoBehaviour
 
     [Header("Enemy Stuff")]
     [SerializeField]
-    private GameObject _enemyPrefab;
+    private GameObject _vampireEnemyPrefab;
+    [SerializeField]
+    private GameObject _ghostEnemyPrefab;
     [SerializeField]
     private GameObject _enemyContainer;
     [SerializeField]
@@ -57,6 +60,8 @@ public class GameManager : MonoBehaviour
     private int _enemiesSpawned;
     private float _enemySpawnDelay;
     private float _enemySpawnTimer;
+    private int _vampireEnemies;
+    private int _ghostEnemies;
 
     [Header("Trap Stuff")]
     [SerializeField]
@@ -174,8 +179,23 @@ public class GameManager : MonoBehaviour
                     {
                         if (_enemySpawnTimer > _enemySpawnDelay)
                         {
+                            //Spawn an enemy
                             //Spawn an attendee
-                            GameObject enemy = Instantiate(_enemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                            if (_vampireEnemies <= 0)
+                            {
+                                Instantiate(_ghostEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                                _ghostEnemies--;
+                            }
+                            else if (_ghostEnemies <= 0 || Random.Range(0, 2) == 0)
+                            {
+                                Instantiate(_vampireEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                                _vampireEnemies--;
+                            }
+                            else
+                            {
+                                Instantiate(_ghostEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                                _ghostEnemies--;
+                            }
 
                             _enemySpawnTimer = 0;
                             _enemiesSpawned++;
@@ -326,7 +346,7 @@ public class GameManager : MonoBehaviour
                 _attendeeSpawnTimer = _attendeeSpawnDelay;
                 _attendeeCount = 8 + 2 * _round;
                 _vampireAttendees = _attendeeCount / 2;
-                _ghostAttendees = _attendeeCount = _vampireAttendees;
+                _ghostAttendees = _attendeeCount - _vampireAttendees;
                 _attendeesSpawned = 0;
                 _requiredAttendees = (int)(_attendeeCount * 0.5f);
                 _attendeesPassed = 0;
@@ -336,6 +356,8 @@ public class GameManager : MonoBehaviour
                 _enemySpawnTimer = _enemySpawnDelay - 2.0f;
                 _enemyCount = 3 + 1 * (_round / 2);
                 _enemiesSpawned = 0;
+                _vampireEnemies = _enemyCount / 2;
+                _ghostEnemies = _enemyCount - _vampireAttendees;
 
                 //Set up Trap values
                 _trapsRemaining = 3 + _round / 2;
