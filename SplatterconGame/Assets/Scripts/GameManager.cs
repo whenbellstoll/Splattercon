@@ -13,26 +13,38 @@ public class GameManager : MonoBehaviour
 	
     [Header("Booth Stuff")]
     [SerializeField]
-    private GameObject _boothPrefab;
+    private GameObject _vampireBoothPrefab;
     [SerializeField]
-    private GameObject _boothContainer;
+    private GameObject _vampireBoothContainer;
+    [SerializeField]
+    private GameObject _ghostBoothPrefab;
+    [SerializeField]
+    private GameObject _ghostBoothContainer;
 
     [Header("Attendee Stuff")]
     [SerializeField]
-    private GameObject _attendeePrefab;
+    private GameObject _vampireAttendeePrefab;
     [SerializeField]
-    private GameObject _attendeeContainer;
+    private GameObject _vampireAttendeeContainer;
+    public GameObject VampireAttendeeContainer => _vampireAttendeeContainer;
+    [SerializeField]
+    private GameObject _ghostAttendeePrefab;
+    [SerializeField]
+    private GameObject _ghostAttendeeContainer;
     [SerializeField]
     private GameObject _startNode;
     [SerializeField]
     private GameObject _endNode;
-    private List<GameObject> _attendeePath;
+    private List<GameObject> _vampireAttendeePath;
+    private List<GameObject> _ghostAttendeePath;
     private int _attendeeCount;
     private int _attendeesSpawned;
     private int _requiredAttendees;
     private int _attendeesPassed;
     private float _attendeeSpawnDelay;
     private float _attendeeSpawnTimer;
+    private int _ghostAttendees;
+    private int _vampireAttendees;
 
     [Header("Enemy Stuff")]
     [SerializeField]
@@ -123,16 +135,34 @@ public class GameManager : MonoBehaviour
                         if (_attendeeSpawnTimer > _attendeeSpawnDelay)
                         {
                             //Spawn an attendee
-                            GameObject attendee = Instantiate(_attendeePrefab, _attendeePath[0].transform.position, Quaternion.identity, _attendeeContainer.transform);
-                            attendee.GetComponent<FollowPath>().SetNodes(_attendeePath);
-                            attendee.GetComponent<FollowPath>().FinalNodeReached = AttendeePassed;
+                            if (_vampireAttendees <= 0)
+                            {
+                                GameObject attendee = Instantiate(_ghostAttendeePrefab, _ghostAttendeePath[0].transform.position, Quaternion.identity, _ghostAttendeeContainer.transform);
+                                attendee.GetComponent<FollowPath>().SetNodes(_ghostAttendeePath);
+                                attendee.GetComponent<FollowPath>().FinalNodeReached = AttendeePassed;
+                                _ghostAttendees--;
+                            }
+                            else if (_ghostAttendees <= 0 || Random.Range(0, 2) == 0)
+                            {
+                                GameObject attendee = Instantiate(_vampireAttendeePrefab, _vampireAttendeePath[0].transform.position, Quaternion.identity, _vampireAttendeeContainer.transform);
+                                attendee.GetComponent<FollowPath>().SetNodes(_vampireAttendeePath);
+                                attendee.GetComponent<FollowPath>().FinalNodeReached = AttendeePassed;
+                                _vampireAttendees--;
+                            }
+                            else
+                            {
+                                GameObject attendee = Instantiate(_ghostAttendeePrefab, _ghostAttendeePath[0].transform.position, Quaternion.identity, _ghostAttendeeContainer.transform);
+                                attendee.GetComponent<FollowPath>().SetNodes(_ghostAttendeePath);
+                                attendee.GetComponent<FollowPath>().FinalNodeReached = AttendeePassed;
+                                _ghostAttendees--;
+                            }
                             _attendeeSpawnTimer = 0;
                             _attendeesSpawned++;
                         }
 
                         _attendeeSpawnTimer += Time.deltaTime;
                     }
-                    else if (_attendeeContainer.transform.childCount == 0)
+                    else if (!AttendeesActive())
                     {
                         SetGameState(GameState.BoothPlacing);
 
@@ -168,6 +198,11 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private bool AttendeesActive()
+    {
+        return _vampireAttendeeContainer.transform.childCount > 0 || _ghostAttendeeContainer.transform.childCount > 0;
+    }
+
     private void ObjectPlaced()
     {
         _select.DecrementCurrentSelection();
@@ -177,8 +212,10 @@ public class GameManager : MonoBehaviour
             switch (_select.GetCurrentSelectionName())
             {
                 case "Vampire Booth":
-                    _placing.StartPlacing(_boothPrefab, _boothContainer, ObjectPlaced, CanPlaceBooth);
-                    Debug.Log("Placing vampire booth");
+                    _placing.StartPlacing(_vampireBoothPrefab, _vampireBoothContainer, ObjectPlaced, CanPlaceBooth);
+                    break;
+                case "Ghost Booth":
+                    _placing.StartPlacing(_ghostBoothPrefab, _ghostBoothContainer, ObjectPlaced, CanPlaceBooth);
                     break;
                 case "Bear Trap":
                     if (!_select.IsZero())
@@ -207,8 +244,10 @@ public class GameManager : MonoBehaviour
                 switch (_select.GetCurrentSelectionName())
                 {
                     case "Vampire Booth":
-                        _placing.StartPlacing(_boothPrefab, _boothContainer, ObjectPlaced, CanPlaceBooth);
-                        Debug.Log("Placing vampire booth");
+                        _placing.StartPlacing(_vampireBoothPrefab, _vampireBoothContainer, ObjectPlaced, CanPlaceBooth);
+                        break;
+                    case "Ghost Booth":
+                        _placing.StartPlacing(_ghostBoothPrefab, _ghostBoothContainer, ObjectPlaced, CanPlaceBooth);
                         break;
                     case "Bear Trap":
                         if (!_select.IsZero())
@@ -248,9 +287,16 @@ public class GameManager : MonoBehaviour
 
     private bool CanPlaceBooth(Vector2 pos)
     {
-        for(int i = 0; i < _boothContainer.transform.childCount; i++)
+        for(int i = 0; i < _vampireBoothContainer.transform.childCount; i++)
         {
-            if(Vector2.SqrMagnitude(pos - (Vector2)_boothContainer.transform.GetChild(i).transform.position) <= 1.0f)
+            if(Vector2.SqrMagnitude(pos - (Vector2)_vampireBoothContainer.transform.GetChild(i).transform.position) <= 1.0f)
+            {
+                return true;
+            }
+        }
+        for (int i = 0; i < _ghostBoothContainer.transform.childCount; i++)
+        {
+            if (Vector2.SqrMagnitude(pos - (Vector2)_ghostBoothContainer.transform.GetChild(i).transform.position) <= 1.0f)
             {
                 return true;
             }
@@ -267,14 +313,20 @@ public class GameManager : MonoBehaviour
                 ClearBooths();
                 ClearEnemies();
                 _round++;
-                _boothsRemaining = 3 + _round / 2;
-                _select.SetAmount(SelectionGroups.BOOTH, _boothsRemaining);
+                //Set booth values
+                Dictionary<string, int> boothAmounts = new Dictionary<string, int>();
+                boothAmounts.Add("Vampire Booth", 3 + _round / 2);
+                boothAmounts.Add("Ghost Booth", 3 + _round / 3);
+                _select.SetAmount(SelectionGroups.BOOTH, boothAmounts);
+
                 _roundText.text = "Round " + _round;
-                _placing.StartPlacing(_boothPrefab, _boothContainer, ObjectPlaced, CanPlaceBooth);
+                OnSelectionChange();
                 //Set Attendee values
                 _attendeeSpawnDelay = 0.5f;
                 _attendeeSpawnTimer = _attendeeSpawnDelay;
                 _attendeeCount = 8 + 2 * _round;
+                _vampireAttendees = _attendeeCount / 2;
+                _ghostAttendees = _attendeeCount = _vampireAttendees;
                 _attendeesSpawned = 0;
                 _requiredAttendees = (int)(_attendeeCount * 0.5f);
                 _attendeesPassed = 0;
@@ -306,9 +358,9 @@ public class GameManager : MonoBehaviour
     {
         float closestDist = float.MaxValue;
         Vector2 closestBooth = Vector2.zero;
-        for (int i = 0; i < _boothContainer.transform.childCount; i++)
+        for (int i = 0; i < _vampireBoothContainer.transform.childCount; i++)
         {
-            Vector2 boothpos = _boothContainer.transform.GetChild(i).position;
+            Vector2 boothpos = _vampireBoothContainer.transform.GetChild(i).position;
             if (Vector2.SqrMagnitude(pos - boothpos) < closestDist)
             {
                 closestDist = Vector2.SqrMagnitude(pos - boothpos);
@@ -324,13 +376,13 @@ public class GameManager : MonoBehaviour
     }
 
     //Gets the nearest attendee to a position
-    public Vector2 GetNearestAttendee(Vector2 pos)
+    public Vector2 GetNearestAttendee(Vector2 pos, GameObject container)
     {
         float closestDist = float.MaxValue;
         Vector2 closestAttendee = Vector2.zero;
-        for (int i = 0; i < _attendeeContainer.transform.childCount; i++)
+        for (int i = 0; i < container.transform.childCount; i++)
         {
-            Vector2 attendeepos = _attendeeContainer.transform.GetChild(i).position;
+            Vector2 attendeepos = container.transform.GetChild(i).position;
             if (!_placing.ScreenBounds.Contains(attendeepos)) continue;
             if (Vector2.SqrMagnitude(pos - attendeepos) < closestDist)
             {
@@ -347,23 +399,23 @@ public class GameManager : MonoBehaviour
     }
 
     //Gets the nearest booth skipping a certain booth (used for finding the nearest booth to another booth
-    public GameObject GetNearestBooth(Vector2 pos, List<GameObject> _vistedBooths)
+    public GameObject GetNearestBooth(Vector2 pos, GameObject container, List<GameObject> _vistedBooths)
     {
         float closestDist = float.MaxValue;
         Vector2 closestBooth = Vector2.zero;
-        GameObject foundBooth = _boothContainer.transform.GetChild(0).gameObject;
+        GameObject foundBooth = container.transform.GetChild(0).gameObject;
 
-        for (int i = 0; i < _boothContainer.transform.childCount; i++)
+        for (int i = 0; i < container.transform.childCount; i++)
         {
             //Make sure booth hasn't been visited before
-            if (_vistedBooths.Contains(_boothContainer.transform.GetChild(i).gameObject)) continue;
+            if (_vistedBooths.Contains(container.transform.GetChild(i).gameObject)) continue;
 
-            Vector2 boothpos = _boothContainer.transform.GetChild(i).position;
+            Vector2 boothpos = container.transform.GetChild(i).position;
             if (Vector2.SqrMagnitude(pos - boothpos) < closestDist)
             {
                 closestDist = Vector2.SqrMagnitude(pos - boothpos);
                 closestBooth = boothpos;
-                foundBooth = _boothContainer.transform.GetChild(i).gameObject;
+                foundBooth = container.transform.GetChild(i).gameObject;
             }
         }
         if (closestBooth == Vector2.zero)
@@ -428,26 +480,35 @@ public class GameManager : MonoBehaviour
     //Sets the path for attendees
     private void SetAttendeePath()
     {
-        _attendeePath = new List<GameObject>();
-        List<int> _visted = new List<int>();
-        _attendeePath.Add(_startNode);
-        for (int i = 0; i < _boothContainer.transform.childCount; i++)
+        //Set vampire attendee path
+        _vampireAttendeePath = new List<GameObject>();
+        _vampireAttendeePath.Add(_startNode);
+        for (int i = 0; i < _vampireBoothContainer.transform.childCount; i++)
         {
-            _attendeePath.Add(GetNearestBooth(_attendeePath[_attendeePath.Count - 1].transform.position, _attendeePath));
+            _vampireAttendeePath.Add(GetNearestBooth(_vampireAttendeePath[_vampireAttendeePath.Count - 1].transform.position, _vampireBoothContainer, _vampireAttendeePath));
         }
-        _attendeePath.Add(_endNode);
+        _vampireAttendeePath.Add(_endNode);
+
+        //Set ghost attendee path
+        _ghostAttendeePath = new List<GameObject>();
+        _ghostAttendeePath.Add(_startNode);
+        for (int i = 0; i < _ghostBoothContainer.transform.childCount; i++)
+        {
+            _ghostAttendeePath.Add(GetNearestBooth(_ghostAttendeePath[_ghostAttendeePath.Count - 1].transform.position, _ghostBoothContainer, _ghostAttendeePath));
+        }
+        _ghostAttendeePath.Add(_endNode);
     }
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
-        if (_attendeePath != null && _attendeePath.Count > 1)
+        if (_vampireAttendeePath != null && _vampireAttendeePath.Count > 1)
         {
-            for(int i = 0; i < _attendeePath.Count - 1; i++)
+            for(int i = 0; i < _vampireAttendeePath.Count - 1; i++)
             {
-                Debug.DrawLine(_attendeePath[i].transform.position, _attendeePath[i + 1].transform.position);
+                Debug.DrawLine(_vampireAttendeePath[i].transform.position, _vampireAttendeePath[i + 1].transform.position);
             }
         }
-    }
+    }*/
 
     //Called when attendee makes it to the end of the path
     private void AttendeePassed(GameObject attendee)
@@ -462,7 +523,11 @@ public class GameManager : MonoBehaviour
     //Clears booths
     private void ClearBooths()
     {
-        foreach(Transform booth in _boothContainer.transform)
+        foreach(Transform booth in _vampireBoothContainer.transform)
+        {
+            Destroy(booth.gameObject);
+        }
+        foreach (Transform booth in _ghostBoothContainer.transform)
         {
             Destroy(booth.gameObject);
         }

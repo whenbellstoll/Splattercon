@@ -78,11 +78,14 @@ public class Selection : MonoBehaviour
         // Detect scroll wheel movements
         if (Input.GetAxis("Mouse ScrollWheel") > 0f) // forward
         {
-            _currentSelectedGroup.Increment();
+            if (_currentSelectedGroup.Increment())
+                OnSelectionChange?.Invoke();
         }
         else if (Input.GetAxis("Mouse ScrollWheel") < 0f) // backwards
         {
-            _currentSelectedGroup.Decrement();
+            if(_currentSelectedGroup.Decrement())
+                OnSelectionChange?.Invoke();
+
         }
     }
 
@@ -267,6 +270,14 @@ public class Selection : MonoBehaviour
         {
             AmountSelectionGroup currentAmountSelection = (AmountSelectionGroup)_currentSelectedGroup;
             currentAmountSelection.DecrementAmount();
+            if(currentAmountSelection.IsZero() && !currentAmountSelection.AllZero())
+            {
+                while(currentAmountSelection.IsZero())
+                {
+                    currentAmountSelection.Increment();
+                }
+                OnSelectionChange?.Invoke();
+            }
         }
         _currentSelectedGroup.UpdateSprites();
     }
@@ -379,31 +390,44 @@ public class SelectionGroup
     }
 
     // Increment the current option we have selected, then draw the sprite with UpdateSprites
-    public void Increment()
+    public bool Increment()
     {
-        _selectionIndex++;
-
-        if(_selectionIndex >= _selections.Count)
+        if (_selections.Count == 0)
+            return false;
+        else
         {
-            _selectionIndex = 0;
-        }
+            _selectionIndex++;
 
-        UpdateSprites();
+            if (_selectionIndex >= _selections.Count)
+            {
+                _selectionIndex = 0;
+            }
+
+            UpdateSprites();
+            return true;
+        }
 
     }
 
     // Decrement the current option we have selected, then draw the sprite with UpdateSprites.
-    public void Decrement()
+    public bool Decrement()
     {
-        _selectionIndex--;
-
-        if (_selectionIndex < 0)
+        if (_selections.Count == 0)
         {
-            _selectionIndex = _selections.Count - 1;
+            return false;
         }
+        else
+        {
+            _selectionIndex--;
 
-        UpdateSprites();
+            if (_selectionIndex < 0)
+            {
+                _selectionIndex = _selections.Count - 1;
+            }
 
+            UpdateSprites();
+            return true;
+        }
     }
 
 }
@@ -537,7 +561,6 @@ public class AmountSelectionGroup : SelectionGroup
         _selectionAmount[_selectionIndex]--;
         if (_selectionAmount[_selectionIndex] < 0)
             _selectionAmount[_selectionIndex] = 0;
-
     }
 
 

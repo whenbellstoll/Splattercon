@@ -40,7 +40,7 @@ public class Enemy : MonoBehaviour
 
     public void SeekAttendeeAI()
     {
-        _destination = _gm.GetNearestAttendee(transform.position);
+        _destination = _gm.GetNearestAttendee(transform.position, _gm.VampireAttendeeContainer);
         Vector3 destination = _destination;
         //Check for obstacle
         if (CheckObstacle(new Vector2(_destination.x, _destination.y)))
