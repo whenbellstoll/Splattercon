@@ -95,6 +95,7 @@ public class GameManager : MonoBehaviour
     {
         _placing = GetComponent<Placing>();
         _select = GetComponent<Selection>();
+        _select.OnSelectionChange = OnSelectionChange;
 
         SetGameState(GameState.BoothPlacing);
     }
@@ -114,34 +115,6 @@ public class GameManager : MonoBehaviour
                         _moneyText.transform.parent.gameObject.SetActive(false);
                         _roundText.transform.parent.gameObject.SetActive(false);
                         _select.HideButtons();
-                    }
-
-
-                    //Keep placing booths until all booths are placed
-                    if (!_placing.IsPlacing)
-                    {
-                        
-                        _select.DecrementCurrentSelection();
-                        switch (_select.GetCurrentSelectionName())
-                        {
-                            case "Vampire Booth":
-                                _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
-                                break;
-                            case "Bear Trap":
-                                if (!_select.IsZero())
-                                {
-                                    _placing.StartPlacing(_bearTrapPrefab, _trapContainer);
-                                }
-                                //Currently can not stop placing traps without clicking a button so you can place infinite traps
-                                else
-                                {
-                                    _placing.StartPlacing(_bearTrapPrefab, _trapContainer);
-                                }
-                                break;
-                            default:
-                                _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
-                                break;
-                        }
                     }
                     break;
                 case GameState.Playing:
@@ -194,6 +167,71 @@ public class GameManager : MonoBehaviour
         }
 
     }
+
+    private void ObjectPlaced()
+    {
+        _select.DecrementCurrentSelection();
+
+        if (!_select.IsZero())
+        {
+            switch (_select.GetCurrentSelectionName())
+            {
+                case "Vampire Booth":
+                    _placing.StartPlacing(_boothPrefab, _boothContainer, ObjectPlaced, CanPlaceBooth);
+                    Debug.Log("Placing vampire booth");
+                    break;
+                case "Bear Trap":
+                    if (!_select.IsZero())
+                    {
+                        _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
+                    }
+                    //Currently can not stop placing traps without clicking a button so you can place infinite traps
+                    else
+                    {
+                        _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
+                    }
+                    break;
+                default:
+                    //_placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
+                    break;
+            }
+        }
+    }
+
+    private void OnSelectionChange()
+    {
+        if(_gameState == GameState.BoothPlacing)
+        {
+            if (!_select.IsZero())
+            {
+                switch (_select.GetCurrentSelectionName())
+                {
+                    case "Vampire Booth":
+                        _placing.StartPlacing(_boothPrefab, _boothContainer, ObjectPlaced, CanPlaceBooth);
+                        Debug.Log("Placing vampire booth");
+                        break;
+                    case "Bear Trap":
+                        if (!_select.IsZero())
+                        {
+                            _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
+                        }
+                        //Currently can not stop placing traps without clicking a button so you can place infinite traps
+                        else
+                        {
+                            _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
+                        }
+                        break;
+                    default:
+                        //_placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
+                        break;
+                }
+            }
+            else
+            {
+                _placing.CancelPlacing();
+            }
+        }
+    }
 	
 	private void PauseGame(){
 		_pauseMenu.SetActive(true);
@@ -232,7 +270,7 @@ public class GameManager : MonoBehaviour
                 _boothsRemaining = 3 + _round / 2;
                 _select.SetAmount(SelectionGroups.BOOTH, _boothsRemaining);
                 _roundText.text = "Round " + _round;
-                _placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
+                _placing.StartPlacing(_boothPrefab, _boothContainer, ObjectPlaced, CanPlaceBooth);
                 //Set Attendee values
                 _attendeeSpawnDelay = 0.5f;
                 _attendeeSpawnTimer = _attendeeSpawnDelay;

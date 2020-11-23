@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine;
 
 public enum SelectionGroups { BOOTH, TRAP, SPELL }
+public delegate void SelectionCallback();
 
 public class Selection : MonoBehaviour
 {
@@ -39,6 +40,8 @@ public class Selection : MonoBehaviour
     private SelectionGroup _currentSelectedGroup;
 
     private bool _playButtonClicked;
+
+    public SelectionCallback OnSelectionChange;
 
     void Awake()
     {
@@ -102,6 +105,8 @@ public class Selection : MonoBehaviour
         }
 
         _currentSelectedGroup.UpdateSprites();
+
+        OnSelectionChange?.Invoke();
     }
 
 
@@ -299,7 +304,7 @@ public class Selection : MonoBehaviour
 /// <summary>
 /// Class which holds the different options for a certain selection group (i.e. Booths, Traps, or Spells)
 /// </summary>
-class SelectionGroup
+public class SelectionGroup
 {
 
     private SelectionGroups _selectionGroup;
@@ -407,7 +412,7 @@ class SelectionGroup
 /// <summary>
 /// This is a special type of selection group where we can also set the amounts of the objects we can place (used for Booths, and Traps)
 /// </summary>
-class AmountSelectionGroup : SelectionGroup
+public class AmountSelectionGroup : SelectionGroup
 {
 
     // This selection amount array should theoretically have the same amount of entries as the number of options we have
@@ -530,6 +535,9 @@ class AmountSelectionGroup : SelectionGroup
     public void DecrementAmount()
     {
         _selectionAmount[_selectionIndex]--;
+        if (_selectionAmount[_selectionIndex] < 0)
+            _selectionAmount[_selectionIndex] = 0;
+
     }
 
 

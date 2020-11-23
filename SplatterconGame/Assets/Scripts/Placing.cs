@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public delegate bool PlaceDel(Vector2 pos);
+public delegate void PlaceCallbackDel();
 
 public class Placing : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class Placing : MonoBehaviour
     private RectTransform _playArea;
 
     public PlaceDel ExtraPlacingRule;
+    public PlaceCallbackDel PlaceCallback;
 
     private float _gridSeperation = 1.0f;
     private bool _placing = false;
@@ -76,6 +78,7 @@ public class Placing : MonoBehaviour
                 _previewSprite.gameObject.SetActive(false);
                 Instantiate(_placingPrefab, mousePos, _placingPrefab.transform.rotation, _placedObjectContainer.transform);
                 _placing = false;
+                PlaceCallback?.Invoke();
             }
 
             //If esc is pressed exit placing mode
@@ -90,6 +93,7 @@ public class Placing : MonoBehaviour
             StartPlacing();
         }
     }
+
 
     //Starts placing mode
     public void StartPlacing()
@@ -111,6 +115,7 @@ public class Placing : MonoBehaviour
         _previewSprite.transform.localScale = _placingPrefab.GetComponentInChildren<SpriteRenderer>().transform.lossyScale;
         _placing = true;
         ExtraPlacingRule = null;
+        PlaceCallback = null;
     }
 
     //Starts placing mode with given object
@@ -123,10 +128,24 @@ public class Placing : MonoBehaviour
         _previewSprite.transform.localScale = _placingPrefab.GetComponentInChildren<SpriteRenderer>().transform.lossyScale;
         _placing = true;
         ExtraPlacingRule = null;
+        PlaceCallback = null;
     }
 
     //Starts placing mode with given object and placing rule
-    public void StartPlacing(GameObject prefab, GameObject container, PlaceDel placingRule)
+    public void StartPlacing(GameObject prefab, GameObject container, PlaceCallbackDel callback)
+    {
+        _placingPrefab = prefab;
+        _placedObjectContainer = container;
+        _previewSprite.gameObject.SetActive(true);
+        _previewSprite.sprite = _placingPrefab.GetComponentInChildren<SpriteRenderer>().sprite;
+        _previewSprite.transform.localScale = _placingPrefab.GetComponentInChildren<SpriteRenderer>().transform.lossyScale;
+        _placing = true;
+        ExtraPlacingRule = null;
+        PlaceCallback = callback;
+    }
+
+    //Starts placing mode with given object and placing rule
+    public void StartPlacing(GameObject prefab, GameObject container, PlaceCallbackDel callback, PlaceDel placingRule)
     {
         _placingPrefab = prefab;
         _placedObjectContainer = container;
@@ -135,8 +154,14 @@ public class Placing : MonoBehaviour
         _previewSprite.transform.localScale = _placingPrefab.GetComponentInChildren<SpriteRenderer>().transform.lossyScale;
         _placing = true;
         ExtraPlacingRule = placingRule;
+        PlaceCallback = callback;
     }
 
+    public void CancelPlacing()
+    {
+        _previewSprite.gameObject.SetActive(false);
+        _placing = false;
+    }
 
     //Checks if object is valid for placing
     public bool CanPlace(Vector2 pos)
