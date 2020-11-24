@@ -63,6 +63,7 @@ public class GameManager : MonoBehaviour
     private float _enemySpawnTimer;
     private int _vampireEnemies;
     private int _ghostEnemies;
+    private float _time;
 
     [Header("Trap Stuff")]
     [SerializeField]
@@ -104,6 +105,7 @@ public class GameManager : MonoBehaviour
     private GameState _gameState;
     private Placing _placing;
     private Selection _select;
+    private CastSpell _castSpell;
     private int _round = 0;
     private int _boothsRemaining = 0;
     private int _trapsRemaining = 0;
@@ -115,9 +117,12 @@ public class GameManager : MonoBehaviour
     {
         _placing = GetComponent<Placing>();
         _select = GetComponent<Selection>();
+        _castSpell = GetComponent<CastSpell>();
         _select.OnSelectionChange = OnSelectionChange;
 
         SetGameState(GameState.BoothPlacing);
+
+        _time = 3;
     }
 
     // Update is called once per frame
@@ -139,6 +144,16 @@ public class GameManager : MonoBehaviour
                     }
                     break;
                 case GameState.Playing:
+
+                    //Checks if you can cast a spell
+                    if (Input.GetMouseButtonDown(1) && _time > 2)
+                    {
+                        Debug.Log(_select.GetCurrentSelectionName());
+                        _castSpell.Cast(_select.GetCurrentSelectionName());
+                        _time = 0;
+                    }
+                    _time += Time.deltaTime;
+
                     if (_attendeesSpawned < _attendeeCount)
                     {
                         if (_attendeeSpawnTimer > _attendeeSpawnDelay)
@@ -350,8 +365,8 @@ public class GameManager : MonoBehaviour
                 _round++;
                 //Set booth values
                 Dictionary<string, int> boothAmounts = new Dictionary<string, int>();
-                boothAmounts.Add("Vampire Booth", 3 + _round / 2);
-                boothAmounts.Add("Ghost Booth", 3 + _round / 3);
+                boothAmounts.Add("Vampire Booth", 1 + _round / 2);
+                boothAmounts.Add("Ghost Booth", 1 + _round / 3);
                 _select.SetAmount(SelectionGroups.BOOTH, boothAmounts);
                 _select.ShowButtons();
 
@@ -431,7 +446,7 @@ public class GameManager : MonoBehaviour
         }
         if (closestAttendee == Vector2.zero)
         {
-            closestAttendee = transform.position;
+            closestAttendee = _spawnNode.transform.position;
         }
 
         return closestAttendee;
@@ -497,7 +512,10 @@ public class GameManager : MonoBehaviour
     //Bear trap script
     public bool BearTrap(Vector2 pos, float speed)
     {
+        HealthBar health;
         Enemy current = null;
+        
+        
         foreach (Transform enemy in _enemyContainer.transform)
         {
             if (current == null || (Vector2.Distance(enemy.position, pos) < Vector2.Distance(current.transform.position, pos)))
@@ -510,6 +528,8 @@ public class GameManager : MonoBehaviour
         {
             current.ChangeSpeed(speed);
             current.transform.position = new Vector2(pos.x, pos.y);
+            //health = current.GetComponent<HealthBar>();
+            //health.TakeDamage(50);
             return true;
         }
 

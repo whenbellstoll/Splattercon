@@ -19,7 +19,7 @@ public class DamageSpell : MonoBehaviour
         time += Time.deltaTime;
         if(time > 0.05f)
         {
-            _gm.ApplyDamage(transform.position, 2);
+            _gm.ApplyDamage(transform.position, 5);
             time = 0;
         }
         

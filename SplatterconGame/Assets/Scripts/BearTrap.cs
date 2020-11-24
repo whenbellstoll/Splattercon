@@ -43,6 +43,7 @@ public class BearTrap : MonoBehaviour
                     spriteRenderer.sprite = closedSprite;
                     time = 1;//Change for how long enemy is in trap
                     current = State.TRIGGERED;
+                    _gm.ApplyDamage(transform.position, 50);
                 }
                 break;
                 //Enemy is in bear trap 
@@ -50,9 +51,10 @@ public class BearTrap : MonoBehaviour
                 time -= Time.deltaTime;
                 _gm.BearTrap(transform.position, 0);
                 if (time < 0)
-                {
+                {                    
                     spriteRenderer.sprite = openSprite;
                     time = 5;//Change for how long until trap triggers again
+                    Destroy(gameObject); // Makes bear traps one time use
                     current = State.WAITING;
                 }
                 break;
