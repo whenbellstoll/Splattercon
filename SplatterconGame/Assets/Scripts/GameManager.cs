@@ -415,7 +415,7 @@ public class GameManager : MonoBehaviour
         }
         if (closestAttendee == Vector2.zero)
         {
-            closestAttendee = transform.position;
+            closestAttendee = _spawnNode.transform.position;
         }
 
         return closestAttendee;

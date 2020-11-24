@@ -180,8 +180,8 @@ public class Placing : MonoBehaviour
         }
 
         //Make sure mouse is within defined play area (Refer to play area rect transform in Canvas Two to see bounds)
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(_playArea, Input.mousePosition, Camera.main, out localPoint);
-        if (!_playArea.rect.Contains(localPoint))
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_playArea, pos, Camera.main, out localPoint);
+        if (!_playArea.rect.Contains(pos))
         {
             return false;
         }
