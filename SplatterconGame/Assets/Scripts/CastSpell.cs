@@ -10,7 +10,7 @@ public class CastSpell : MonoBehaviour
 
     private GameObject current;
 
-    private float time;
+    private Vector2 mousePos;
 
     public GameObject spellOne;
     public GameObject spellTwo;
@@ -22,29 +22,24 @@ public class CastSpell : MonoBehaviour
     {
         _mainCamera = Camera.main;
         current = spellOne;
-        time = 0;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Cast(string selectedSpell)
     {
-        time += Time.deltaTime;
-        Vector2 mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        if (Input.GetMouseButtonDown(1) && time > 0)
+        switch (selectedSpell)
         {
-            Destroy(Instantiate(current, mousePos, Quaternion.identity), 3.0f);
-            time = 0;
+            case "Fire Spell":
+                current = spellOne;
+                break;
+            case "Snow Spell":
+                current = spellTwo;
+                break;
+            default:
+                current = spellOne;
+                break;
         }
-
+        mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        Destroy(Instantiate(current, mousePos, Quaternion.identity), 3.0f);
     }
 
-    public void DamageSpell()
-    {
-        current = spellOne;
-    }
-
-    public void SlowSpell()
-    {
-        current = spellTwo;
-    }
 }

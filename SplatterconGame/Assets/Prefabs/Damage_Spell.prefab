@@ -4880,8 +4880,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1942317625661231963}
   - component: {fileID: 6135069249644476326}
-  - component: {fileID: 7092934427892485027}
   - component: {fileID: 5718489095831436697}
+  - component: {fileID: 372291678775444022}
   m_Layer: 0
   m_Name: Damage_Spell
   m_TagString: Untagged
@@ -4942,7 +4942,7 @@ LineRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Positions:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 1}
@@ -5001,21 +5001,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!114 &7092934427892485027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8113310737663664578}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 854e1567466b2a2488186b94401f6535, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  segments: 50
-  xradius: 1
-  yradius: 1
 --- !u!114 &5718489095831436697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5028,3 +5013,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 576611ab641f49646948d260643a957b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &372291678775444022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8113310737663664578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 854e1567466b2a2488186b94401f6535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  segments: 50
+  xradius: 5
+  yradius: 5
