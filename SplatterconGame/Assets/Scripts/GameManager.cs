@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 enum GameState { BoothPlacing, Playing, RoundEnd}
@@ -95,6 +96,8 @@ public class GameManager : MonoBehaviour
     //private Text _attendeesPassedText;
 	[SerializeField]
     private GameObject _pauseMenu;
+    [SerializeField]
+    private SceneData _sceneDataObject;
 
     private int _money = 0;
 
@@ -129,8 +132,9 @@ public class GameManager : MonoBehaviour
                     if(_select.PlayButtonClicked() && _select.AllZero(SelectionGroups.BOOTH))
                     {
                         SetGameState(GameState.Playing);
-                        _moneyText.transform.parent.gameObject.SetActive(false);
+
                         _roundText.transform.parent.gameObject.SetActive(false);
+
                         _select.HideButtons();
                     }
                     break;
@@ -169,10 +173,21 @@ public class GameManager : MonoBehaviour
                     }
                     else if (!AttendeesActive())
                     {
-                        SetGameState(GameState.BoothPlacing);
 
-                        _moneyText.transform.parent.gameObject.SetActive(true);
-                        _roundText.transform.parent.gameObject.SetActive(true);
+                        if(_attendeesPassed < _requiredAttendees)
+                        {
+
+                            _sceneDataObject.SetData(_round);
+                            SceneManager.LoadScene("EndMenu", LoadSceneMode.Single);
+
+                        }
+                        else
+                        {
+                            SetGameState(GameState.BoothPlacing);
+
+                            _roundText.transform.parent.gameObject.SetActive(true);
+                        }
+
                     }
 
                     if (_enemiesSpawned < _enemyCount)
@@ -366,6 +381,7 @@ public class GameManager : MonoBehaviour
 
                 UpdateAttendeeText();
                 RandomizeSpawns();
+
                 break;
             case GameState.Playing:
                 Debug.Log("Now Playing");
