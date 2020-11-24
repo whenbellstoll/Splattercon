@@ -335,8 +335,8 @@ public class GameManager : MonoBehaviour
                 _round++;
                 //Set booth values
                 Dictionary<string, int> boothAmounts = new Dictionary<string, int>();
-                boothAmounts.Add("Vampire Booth", 3 + _round / 2);
-                boothAmounts.Add("Ghost Booth", 3 + _round / 3);
+                boothAmounts.Add("Vampire Booth", 1 + _round / 2);
+                boothAmounts.Add("Ghost Booth", 1 + _round / 3);
                 _select.SetAmount(SelectionGroups.BOOTH, boothAmounts);
 
                 _roundText.text = "Round " + _round;
