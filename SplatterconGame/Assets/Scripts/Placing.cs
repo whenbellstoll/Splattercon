@@ -1,29 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public delegate bool PlaceDel(Vector2 pos);
+public delegate void PlaceCallbackDel();
 
 public class Placing : MonoBehaviour
 {
-    [SerializeField]
+    //[SerializeField]
     private GameObject _placingPrefab;
     [SerializeField]
     private SpriteRenderer _previewSprite;
     [SerializeField]
-    private GameObject _placedObjectContainer;
+    private GameObject _defaultPlacedObjectContainer;
+    [SerializeField]
+    private RectTransform _playArea;
 
     public PlaceDel ExtraPlacingRule;
+    public PlaceCallbackDel PlaceCallback;
 
     private float _gridSeperation = 1.0f;
     private bool _placing = false;
+    public bool IsPlacing => _placing;
+
+    private GameObject _placedObjectContainer;
 
     private Camera _mainCamera;
     private Bounds _screenBounds;
+    public Bounds ScreenBounds => _screenBounds;
     private float _boundsMargin = 1.0f;
+    private Selection _select;
+
+    Vector2 localPoint;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         //Get screen bounds
         _mainCamera = Camera.main;
@@ -34,12 +46,14 @@ public class Placing : MonoBehaviour
             new Vector3(cameraHeight * screenAspect - 2 * _boundsMargin, cameraHeight - 2 * _boundsMargin, 0.1f));
 
         _previewSprite.gameObject.SetActive(false);
+
+        _select = GetComponent<Selection>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(_placing)
+        if (_placing)
         {
             Vector2 mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
             //Snap mouse pos to grid
@@ -54,7 +68,7 @@ public class Placing : MonoBehaviour
             //Check is object can be placed
             bool canPlace = CanPlace(mousePos);
             if (canPlace)
-                _previewSprite.color = new Color(1,1,1,_previewSprite.color.a);
+                _previewSprite.color = new Color(1, 1, 1, _previewSprite.color.a);
             else
                 _previewSprite.color = new Color(1, 0, 0, _previewSprite.color.a);
 
@@ -64,20 +78,22 @@ public class Placing : MonoBehaviour
                 _previewSprite.gameObject.SetActive(false);
                 Instantiate(_placingPrefab, mousePos, _placingPrefab.transform.rotation, _placedObjectContainer.transform);
                 _placing = false;
+                PlaceCallback?.Invoke();
             }
 
             //If esc is pressed exit placing mode
-            if(Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.E))
             {
                 _previewSprite.gameObject.SetActive(false);
                 _placing = false;
             }
         }
-        else if(Input.GetKeyDown(KeyCode.Space))
+        else if (Input.GetKeyDown(KeyCode.Space))
         {
             StartPlacing();
         }
     }
+
 
     //Starts placing mode
     public void StartPlacing()
@@ -93,47 +109,102 @@ public class Placing : MonoBehaviour
     public void StartPlacing(GameObject prefab)
     {
         _placingPrefab = prefab;
+        _placedObjectContainer = _defaultPlacedObjectContainer;
         _previewSprite.gameObject.SetActive(true);
         _previewSprite.sprite = _placingPrefab.GetComponentInChildren<SpriteRenderer>().sprite;
         _previewSprite.transform.localScale = _placingPrefab.GetComponentInChildren<SpriteRenderer>().transform.lossyScale;
         _placing = true;
         ExtraPlacingRule = null;
+        PlaceCallback = null;
+    }
+
+    //Starts placing mode with given object
+    public void StartPlacing(GameObject prefab, GameObject container)
+    {
+        _placingPrefab = prefab;
+        _placedObjectContainer = container;
+        _previewSprite.gameObject.SetActive(true);
+        _previewSprite.sprite = _placingPrefab.GetComponentInChildren<SpriteRenderer>().sprite;
+        _previewSprite.transform.localScale = _placingPrefab.GetComponentInChildren<SpriteRenderer>().transform.lossyScale;
+        _placing = true;
+        ExtraPlacingRule = null;
+        PlaceCallback = null;
     }
 
     //Starts placing mode with given object and placing rule
-    public void StartPlacing(GameObject prefab, PlaceDel placingRule)
+    public void StartPlacing(GameObject prefab, GameObject container, PlaceCallbackDel callback)
     {
         _placingPrefab = prefab;
+        _placedObjectContainer = container;
+        _previewSprite.gameObject.SetActive(true);
+        _previewSprite.sprite = _placingPrefab.GetComponentInChildren<SpriteRenderer>().sprite;
+        _previewSprite.transform.localScale = _placingPrefab.GetComponentInChildren<SpriteRenderer>().transform.lossyScale;
+        _placing = true;
+        ExtraPlacingRule = null;
+        PlaceCallback = callback;
+    }
+
+    //Starts placing mode with given object and placing rule
+    public void StartPlacing(GameObject prefab, GameObject container, PlaceCallbackDel callback, PlaceDel placingRule)
+    {
+        _placingPrefab = prefab;
+        _placedObjectContainer = container;
         _previewSprite.gameObject.SetActive(true);
         _previewSprite.sprite = _placingPrefab.GetComponentInChildren<SpriteRenderer>().sprite;
         _previewSprite.transform.localScale = _placingPrefab.GetComponentInChildren<SpriteRenderer>().transform.lossyScale;
         _placing = true;
         ExtraPlacingRule = placingRule;
+        PlaceCallback = callback;
     }
 
+    public void CancelPlacing()
+    {
+        _previewSprite.gameObject.SetActive(false);
+        _placing = false;
+    }
 
     //Checks if object is valid for placing
     public bool CanPlace(Vector2 pos)
     {
         //Make sure another object is not in that space
-        for(int i = 0; i < _placedObjectContainer.transform.childCount; i++)
+        for (int i = 0; i < _placedObjectContainer.transform.childCount; i++)
         {
-            if(pos == (Vector2)_placedObjectContainer.transform.GetChild(i).position)
+            if (pos == (Vector2)_placedObjectContainer.transform.GetChild(i).position)
                 return false;
         }
 
         //Make sure mouse pos is in bounds
-        if(!_screenBounds.Contains(pos))
+        if (!_screenBounds.Contains(pos))
+        {
+            return false;
+        }
+
+        //Make sure mouse is within defined play area (Refer to play area rect transform in Canvas Two to see bounds)
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_playArea, Input.mousePosition, Camera.main, out localPoint);
+        if (!_playArea.rect.Contains(localPoint))
+        {
+            return false;
+        }
+
+        //Checks if you still have enough of the selected item
+        //This currently does not work because placing is not aware of how many objects can be placed 
+        if (_select.AllZero())
         {
             return false;
         }
 
         //Add extra placing rules as necessary
-        if(ExtraPlacingRule != null && ExtraPlacingRule(pos))
+        if (ExtraPlacingRule != null && ExtraPlacingRule(pos))
         {
             return false;
         }
-        
+
+
         return true;
     }
 }
+
+
+
+
+

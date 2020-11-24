@@ -2,42 +2,79 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum EnemyType { Vampire, Ghost}
+
 public class Enemy : MonoBehaviour
 {
+    [SerializeField]
+    private EnemyType _type;
+
     private Rigidbody2D _rb;
     private float _maxSpeed = 5.0f;
     private float _maxHealth = 100;
     private float _health;
-    private float _viewRange = 5.0f;
+    private float _viewRange = 3.0f;
     private float _widthMult = 0.8f;
     private Vector2 _destination = Vector2.zero;
     protected HealthBar _healthBar;
+    private GameManager _gm;
+    private float spellSpeed;
+
+    private float _pauseTimer = 0;
 
     // Start is called before the first frame update
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         _health = _maxHealth;
         _healthBar = GetComponent<HealthBar>();
         _healthBar.SetMaxHealth(_maxHealth);
         _healthBar.UpdateHealth(_health);
+        spellSpeed = 1.0f;
     }
 
     // Update is called once per frame
     void Update()
     {
-        AvoidAI();
-        if (Input.GetMouseButtonDown(1))
+        if(_pauseTimer > 0)
+            _pauseTimer -= Time.deltaTime;
+        else
+            SeekAttendeeAI();
+    }
+
+    public void SeekAttendeeAI()
+    {
+        if(_type == EnemyType.Vampire)
+            _destination = _gm.GetNearestAttendee(transform.position, _gm.VampireAttendeeContainer);
+        else
+            _destination = _gm.GetNearestAttendee(transform.position, _gm.GhostAttendeeContainer);
+        Vector3 destination = _destination;
+        //Check for obstacle
+        if (CheckObstacle(new Vector2(_destination.x, _destination.y)))
         {
-            _destination = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Set destination to closest way to player that avoids obstacles
+            destination = (Vector2)transform.position + AvoidObstacle(new Vector2(_destination.x, _destination.y));
         }
+
+        //Seek destination
+        Vector3 netForce = Seek(destination);
+        if (Vector2.SqrMagnitude((Vector2)transform.position - _destination) < 0.1f * 0.1f)
+        {
+            _rb.velocity = Vector2.zero;
+            netForce = Vector2.zero;
+        }
+
+
+        //Debug.DrawLine(transform.position, transform.position + netForce, Color.red);
+        _rb.AddForce(netForce);
     }
 
     public void BasicAI()
     {
-        if(_destination == Vector2.zero)
+        if (_destination == Vector2.zero)
         {
-            _destination = GetNearestBooth();
+            _destination = _gm.GetNearestBooth(transform.position);
         }
         else
         {
@@ -65,33 +102,10 @@ public class Enemy : MonoBehaviour
             netForce = Vector2.zero;
         }
 
-
         //Debug.DrawLine(transform.position, transform.position + netForce, Color.red);
         _rb.AddForce(netForce);
     }
 
-    public Vector2 GetNearestBooth()
-    {
-        GameObject booths = GameObject.Find("PlacedObjects");
-        float closestDist = float.MaxValue;
-        Vector2 closestBooth = Vector2.zero;
-        for(int i = 0; i < booths.transform.childCount; i++)
-        {
-            Vector2 boothpos = booths.transform.GetChild(i).position;
-            if(Vector2.SqrMagnitude((Vector2)transform.position - boothpos) < closestDist)
-            {
-                closestDist = Vector2.SqrMagnitude((Vector2)transform.position - boothpos);
-                closestBooth = boothpos;
-            }
-        }
-        if(closestBooth == Vector2.zero)
-        {
-            closestBooth = transform.position;
-        }
-
-        Debug.Log(closestBooth);
-        return closestBooth;
-    }
 
     /// <summary>
     /// Steers the body towards a desired velocity
@@ -103,6 +117,7 @@ public class Enemy : MonoBehaviour
         //Set up desired velocity
         desiredVelocity = desiredVelocity.normalized;
         desiredVelocity *= _maxSpeed;
+        desiredVelocity *= spellSpeed;
 
         //Calc steering force
         Vector2 steeringForce = desiredVelocity - _rb.velocity;
@@ -123,6 +138,16 @@ public class Enemy : MonoBehaviour
     }
 
     /// <summary>
+    /// Changes the speed of the enemy for an amount of time
+    /// </summary>
+    /// <param name="speed">float value to change _maxSpeed</param>
+    public void ChangeSpeed(float speed)
+    {
+        //spellSpeed = speed;
+        _rb.velocity *= speed;
+    }
+
+    /// <summary>
     /// Checks if there is an obstical in the enemy's path
     /// </summary>
     /// <returns>If enemy's path is interuptted</returns>
@@ -139,7 +164,7 @@ public class Enemy : MonoBehaviour
         foreach (RaycastHit2D hit in hits)
         {
             //Make sure hit was not from their own hitbox
-            if (hit.collider.gameObject != gameObject)
+            if (hit.collider.gameObject != gameObject && hit.collider.tag != "Attendee" && hit.collider.tag != "Enemy")
             {
                 return true;
             }
@@ -174,13 +199,13 @@ public class Enemy : MonoBehaviour
             {
                 foreach (RaycastHit2D hit in hits)
                 {
-                    if(hit.collider.gameObject != gameObject)
+                    if (hit.collider.gameObject != gameObject && hit.collider.tag != "Attendee" && hit.collider.tag != "Enemy")
                     {
                         noHit = false;
                     }
                 }
             }
-            if(noHit)
+            if (noHit)
             {
                 //Set direction if path is found
                 dir = Quaternion.AngleAxis(i, Vector3.forward) * targetDir;
@@ -195,14 +220,14 @@ public class Enemy : MonoBehaviour
             {
                 foreach (RaycastHit2D hit in hits)
                 {
-                    if (hit.collider.gameObject != gameObject)
+                    if (hit.collider.gameObject != gameObject && hit.collider.tag != "Attendee" && hit.collider.tag != "Enemy")
                     {
                         noHit = false;
                     }
                 }
             }
             if (noHit)
-            { 
+            {
                 //Set direction if path is found
                 dir = Quaternion.AngleAxis(-i, Vector3.forward) * targetDir;
                 Debug.DrawLine(transform.position, (Vector2)transform.position + dir * _viewRange * 1.5f, Color.yellow);
@@ -215,7 +240,17 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        Debug.Log("Nowhere found");
-        return Quaternion.AngleAxis(90, Vector3.forward) * targetDir;
+        return -targetDir;
+    }
+
+    //Kill attendee on coming in contact with them
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.tag == "Attendee" && _pauseTimer <= 0)
+        {
+            Destroy(collision.gameObject);
+            _pauseTimer = 1.0f;
+            _rb.velocity = Vector2.zero;
+        }
     }
 }

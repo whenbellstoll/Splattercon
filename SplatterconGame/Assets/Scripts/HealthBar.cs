@@ -60,7 +60,7 @@ public class HealthBar : MonoBehaviour
         if (currentHealth <= 0)
         {
             currentHealth = 0;
-            //Kill monster
+            Destroy(gameObject);
         }
     }
 }
