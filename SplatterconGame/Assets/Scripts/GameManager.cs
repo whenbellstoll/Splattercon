@@ -321,15 +321,15 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-	
-	private void PauseGame(){
+
+    public void PauseGame(){
 		_pauseMenu.SetActive(true);
         PAUSED = true;
 		Time.timeScale = 0f;
 	}
-	
-	
-	private void ResumeGame(){
+
+
+    public void ResumeGame(){
 		_pauseMenu.SetActive(false);
 		PAUSED = false;
 		Time.timeScale = 1.0f;

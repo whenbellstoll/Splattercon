@@ -134,6 +134,8 @@ public class Selection : MonoBehaviour
         if (AllZero(SelectionGroups.BOOTH))
         {
             _playButtonClicked = true;
+            UpdateSelection(SelectionGroups.SPELL);
+
         }
     }
 
@@ -176,7 +178,7 @@ public class Selection : MonoBehaviour
 
 
     // Check to see if the currently selected group has every single option at zero
-    // !!! This should not be used to check if we have any current booths yet !!!
+    // !!! This should not be used to check if we have any current booths to place !!!
     public bool AllZero()
     {
         if(_currentSelectedGroup is AmountSelectionGroup)
@@ -281,6 +283,8 @@ public class Selection : MonoBehaviour
         }
         _currentSelectedGroup.UpdateSprites();
     }
+
+
 
 
     public void HideButtons()
