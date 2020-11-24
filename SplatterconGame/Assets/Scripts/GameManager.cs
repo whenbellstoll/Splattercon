@@ -338,6 +338,7 @@ public class GameManager : MonoBehaviour
                 boothAmounts.Add("Vampire Booth", 3 + _round / 2);
                 boothAmounts.Add("Ghost Booth", 3 + _round / 3);
                 _select.SetAmount(SelectionGroups.BOOTH, boothAmounts);
+                _select.ShowButtons();
 
                 _roundText.text = "Round " + _round;
                 OnSelectionChange();
