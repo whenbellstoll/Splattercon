@@ -62,7 +62,7 @@ public class FollowPath : MonoBehaviour
     {
         Vector3 distance = currentNode.transform.position - transform.position;
         distance = new Vector3(distance.x, distance.y, 0);
-        if (distance.magnitude <= 0.5f)
+        if (distance.magnitude <= 0.25f)
         {
             atTargetNode = true;
         }
