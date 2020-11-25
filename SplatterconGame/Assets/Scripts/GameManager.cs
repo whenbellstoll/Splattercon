@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
     private float _enemySpawnTimer;
     private int _vampireEnemies;
     private int _ghostEnemies;
-    private float _time;
+    private float _spellTime;
 
     [Header("Trap Stuff")]
     [SerializeField]
@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private SceneData _sceneDataObject;
 
-    private int _money = 0;
+    private int _money = 100;
 
     private GameState _gameState;
     private Placing _placing;
@@ -122,7 +122,9 @@ public class GameManager : MonoBehaviour
 
         SetGameState(GameState.BoothPlacing);
 
-        _time = 3;
+        _spellTime = 3;
+
+        _moneyText.text = "$" + _money.ToString();
     }
 
     // Update is called once per frame
@@ -144,15 +146,16 @@ public class GameManager : MonoBehaviour
                     }
                     break;
                 case GameState.Playing:
-
+                    _moneyText.text = "$"+_money.ToString();
                     //Checks if you can cast a spell
-                    if (Input.GetMouseButtonDown(1) && _time > 2)
+                    if (Input.GetMouseButtonDown(1) && _spellTime > 2 && _money > 10)
                     {
                         Debug.Log(_select.GetCurrentSelectionName());
                         _castSpell.Cast(_select.GetCurrentSelectionName());
-                        _time = 0;
+                        _spellTime = 0;
+                        _money -= 10;
                     }
-                    _time += Time.deltaTime;
+                    _spellTime += Time.deltaTime;
 
                     if (_attendeesSpawned < _attendeeCount)
                     {
