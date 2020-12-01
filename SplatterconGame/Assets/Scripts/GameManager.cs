@@ -137,16 +137,18 @@ public class GameManager : MonoBehaviour
 
                         _roundText.transform.parent.gameObject.SetActive(false);
 
+                        _placing.CancelPlacing();
+
                         _select.HideButtons();
                     }
                     break;
                 case GameState.Playing:
                     //Checks if you can cast a spell
-                    if (Input.GetMouseButtonDown(1) && _spellTime > 2 && !_select.IsZero())
+                    if (Input.GetMouseButtonDown(1) && !_select.IsZero())
                     {
-                        Debug.Log(_select.GetCurrentSelectionName());
                         _castSpell.Cast(_select.GetCurrentSelectionName());
                         _spellTime = 0;
+                        _select.DecrementCurrentSelection();
                         _select.SubtractMoney(10);
                     }
                     _spellTime += Time.deltaTime;
@@ -286,7 +288,7 @@ public class GameManager : MonoBehaviour
     {
         if(_gameState == GameState.BoothPlacing)
         {
-            if (!_select.IsZero())
+            if (!_select.IsZero() && _select.GetCurrentSelectionGroup() != SelectionGroups.SPELL)
             {
                 switch (_select.GetCurrentSelectionName())
                 {
@@ -367,6 +369,9 @@ public class GameManager : MonoBehaviour
                 _select.SetAmount(SelectionGroups.BOOTH, "Vampire Booth", 1 + _round / 2);
                 _select.SetAmount(SelectionGroups.BOOTH, "Ghost Booth", 1 + _round / 3);
 
+                _select.SetAmount(SelectionGroups.SPELL, "Fire Spell", 10);
+                _select.SetAmount(SelectionGroups.SPELL, "Snow Spell", 10);
+
                 _select.ShowButtons();
 
                 _roundText.text = "Round " + _round;
@@ -390,7 +395,7 @@ public class GameManager : MonoBehaviour
                 _ghostEnemies = _enemyCount - _vampireAttendees;
 
                 //Set up Trap values
-                _select.SetAmount(SelectionGroups.TRAP, "Bear Trap", 27);
+                _select.SetAmount(SelectionGroups.TRAP, "Bear Trap", 100);
 
                 UpdateAttendeeText();
                 RandomizeSpawns();

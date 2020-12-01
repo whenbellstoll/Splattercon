@@ -37,12 +37,24 @@ public class Selection : MonoBehaviour
     [SerializeField]
     private GameObject _zeroMask;
 
+    [Header("Spell Recharge Bar")]
+    [SerializeField]
+    private float _rechargeRate;
+    [SerializeField]
+    private RectTransform _rechargeBarTransform;
+    [SerializeField]
+    private int _maxRechargeBarSize;
+    [SerializeField]
+    private float _rechargeBarInitialX;
+
 
     private List<SelectionGroup> _selectionGroups;
     private SelectionGroup _currentSelectedGroup;
     private Money _money;
-
+    private RechargeBar _rechargeBar;
+    
     private bool _playButtonClicked;
+    private Vector3 _selectionButtonInitialPosition;
     public SelectionCallback OnSelectionChange;
 
     void Awake()
@@ -57,11 +69,13 @@ public class Selection : MonoBehaviour
 
         _selectionGroups = new List<SelectionGroup>();
         _money = new Money(_moneyText, 100);
-        
+        _rechargeBar = new RechargeBar(_rechargeBarTransform, _maxRechargeBarSize, _rechargeBarInitialX, _rechargeRate);
+        _selectionButtonInitialPosition = _selectionButton.transform.localPosition;
+
         // Create a new selection group where the options are the children in the parent group.
         _selectionGroups.Add(new BoothGroup(_boothContainer, _money, _amountText, _zeroMask));
         _selectionGroups.Add(new TrapGroup(_trapContainer, _money, _amountText, _zeroMask));
-        _selectionGroups.Add(new SpellGroup(_spellContainer, _money, _amountText, _zeroMask));
+        _selectionGroups.Add(new SpellGroup(_spellContainer, _money, _amountText, _zeroMask, _rechargeBar));
 
 
         // Start off with the booth selected
@@ -89,6 +103,12 @@ public class Selection : MonoBehaviour
             if(_currentSelectedGroup.Decrement())
                 OnSelectionChange?.Invoke();
 
+        }
+
+        _rechargeBar.Update();
+        if(_currentSelectedGroup.GroupType == SelectionGroups.SPELL)
+        {
+            _currentSelectedGroup.UpdateSprites();
         }
     }
 
@@ -163,6 +183,8 @@ public class Selection : MonoBehaviour
     }
 
 
+
+
     /*
      *   ===== Below are all the methods we need to call from outside this class in the Game Manager or elsewhere. ======
      *                                                  |
@@ -177,6 +199,13 @@ public class Selection : MonoBehaviour
     {
         return _currentSelectedGroup.SelectionName;
     }
+
+    // Get the current group for the current selection we have.
+    public SelectionGroups GetCurrentSelectionGroup()
+    {
+        return _currentSelectedGroup.GroupType;
+    }
+
 
     // Check to see if the currently selected group has every single option at zero
     // !!! This should not be used to check if we have any current booths to place !!!
@@ -218,7 +247,6 @@ public class Selection : MonoBehaviour
     //            Bear Trap
     //            Lava Trap
     // If you supply SelectionGroups.TRAP, [3, 4] then Bear Trap would have 3, and Lava Trap would have 4
-
     public void SetAmount(SelectionGroups groupType, List<int> amounts)
     {
         SelectionGroup currentAmountSelection = GetAmountSelection(groupType);
@@ -226,6 +254,13 @@ public class Selection : MonoBehaviour
         _currentSelectedGroup.UpdateSprites();
     }
 
+
+    // This version of SetAmount takes in a the name of the option, and the amount we want to set it to. Applies to the supplied groupType
+    // of options represented in the heirachy.
+    // ex.    Traps 
+    //            Bear Trap
+    //            Lava Trap
+    // If you supply (SelectionGroups.TRAP, "Bear Trap", 2) then Bear Trap would have 2
     public void SetAmount(SelectionGroups groupType, string objectName, int amount)
     {
         SelectionGroup currentAmountSelection = GetAmountSelection(groupType);
@@ -248,7 +283,7 @@ public class Selection : MonoBehaviour
     }
 
 
-    // Decrement the current selection by a value of 1
+    // Decrement the current selection by a value of 1, or purchasing with Money
     // !!! Very useful when we place an object !!!
     public void DecrementCurrentSelection()
     {
@@ -266,31 +301,45 @@ public class Selection : MonoBehaviour
         _currentSelectedGroup.UpdateSprites();
     }
 
+
+    // Add money to the money counter
     public void AddMoney(int amount)
     {
         _money.AddMoney(amount);
     }
 
+
+    // Subtract money from the money counter
     public void SubtractMoney(int amount) {
         _money.SubtractMoney(amount);
     }
 
+
+    // Hide the UI buttons.
     public void HideButtons()
     {
         _boothButton.gameObject.SetActive(false);
         _trapButton.gameObject.SetActive(false);
         _playButton.gameObject.SetActive(false);
+        _spellButton.gameObject.SetActive(false);
+
+        _selectionButton.transform.localPosition = _spellButton.transform.localPosition;
 
         _playButtonClicked = false;
     }
 
+    // Show the UI Buttons
     public void ShowButtons()
     {
         _boothButton.gameObject.SetActive(true);
         _trapButton.gameObject.SetActive(true);
         _playButton.gameObject.SetActive(true);
+        _spellButton.gameObject.SetActive(true);
+
+        _selectionButton.transform.localPosition = _selectionButtonInitialPosition;
     }
 
+    // Test to see if the play button was clicked
     public bool PlayButtonClicked()
     {
         return _playButtonClicked;
@@ -341,6 +390,81 @@ public class Money
         UpdateMoneyText();
     }
 
+
+}
+
+public class RechargeBar
+{
+
+    private RectTransform __rechargeBarTransform;
+    private int _maxRechargeBarSize;
+    private float _rechargeInitialX;
+    private float _rechargeRate;
+
+    private float _rechargeTimer;
+
+    public RechargeBar(RectTransform rechargeBarTransform, int maxRechargeBarSize, float rechargeInitialX, float rechargeRate)
+    {
+
+        __rechargeBarTransform = rechargeBarTransform;
+        _maxRechargeBarSize = maxRechargeBarSize;
+        _rechargeInitialX = rechargeInitialX;
+        _rechargeRate = rechargeRate;
+
+        _rechargeTimer = 0.0f;
+
+    }
+
+    public void Update()
+    {
+
+        _rechargeTimer -= Time.deltaTime;
+
+        if(_rechargeTimer <= 0.0)
+        {
+            _rechargeTimer = 0.0f;
+        }
+
+        SetLength();
+
+    }
+
+    public void SetLength()
+    {
+
+        int width = (int)(Mathf.Abs((_rechargeTimer - _rechargeRate) / _rechargeRate) * _maxRechargeBarSize);
+
+        __rechargeBarTransform.sizeDelta = new Vector2(width, __rechargeBarTransform.sizeDelta.y);
+        __rechargeBarTransform.anchoredPosition = new Vector2((width * __rechargeBarTransform.localScale.x / 2) + _rechargeInitialX, __rechargeBarTransform.anchoredPosition.y);
+
+    }
+
+    public void StartTimer()
+    {
+        _rechargeTimer = _rechargeRate;
+    }
+
+    public bool TimerEnded()
+    {
+        if(_rechargeTimer <= 0.0f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void HideBar()
+    {
+        __rechargeBarTransform.transform.parent.gameObject.SetActive(false);
+    }
+
+    public void ShowBar()
+    {
+        __rechargeBarTransform.transform.parent.gameObject.SetActive(true);
+    }
 
 }
 
@@ -395,8 +519,6 @@ public abstract class SelectionGroup
         _money = money;
 
         SetAmount(0);
-
-
 
     }
 
@@ -753,11 +875,15 @@ public class SpellGroup : SelectionGroup
 {
 
 
-    public SpellGroup(GameObject parentObject, Money money, Text amountText, GameObject mask)
+    private RechargeBar _rechargeBar;
+
+    public SpellGroup(GameObject parentObject, Money money, Text amountText, GameObject mask, RechargeBar rechargeBar)
         : base(parentObject, money, amountText, mask)
     {
 
         _selectionGroup = SelectionGroups.SPELL;
+
+        _rechargeBar = rechargeBar;
     }
 
     public override void UpdateSprites()
@@ -769,7 +895,7 @@ public class SpellGroup : SelectionGroup
         _amountText.text = "$" + _selectionAmount[_selectionIndex];
 
         // If we have none left draw it with a mask
-        if (_selectionAmount[_selectionIndex] > _money.Amount)
+        if (IsZero())
         {
             _mask.SetActive(true);
         }
@@ -777,6 +903,8 @@ public class SpellGroup : SelectionGroup
         {
             _mask.SetActive(false);
         }
+
+        _rechargeBar.ShowBar();
 
     }
 
@@ -789,6 +917,8 @@ public class SpellGroup : SelectionGroup
         _amountText.gameObject.SetActive(false);
         _mask.SetActive(false);
 
+        _rechargeBar.HideBar();
+
     }
 
 
@@ -799,9 +929,10 @@ public class SpellGroup : SelectionGroup
         int currentAmount = _selectionAmount[_selectionIndex];
 
         // If we have none left draw it with a mask
-        if (currentAmount <= _money.Amount)
+        if (currentAmount <= _money.Amount && _rechargeBar.TimerEnded())
         {
             _money.SubtractMoney(currentAmount);
+            _rechargeBar.StartTimer();
         }
     }
 
@@ -809,11 +940,17 @@ public class SpellGroup : SelectionGroup
     {
         bool allZero = true;
 
+        if (!_rechargeBar.TimerEnded())
+        {
+            return true;
+        }
+
         for (int i = 0; i < _selectionAmount.Count; i++)
         {
             if (_selectionAmount[i] <= _money.Amount)
             {
                 allZero = false;
+                break;
             }
         }
 
@@ -822,7 +959,7 @@ public class SpellGroup : SelectionGroup
 
     public override bool IsZero()
     {
-        if (_selectionAmount[_selectionIndex] > _money.Amount)
+        if (_selectionAmount[_selectionIndex] > _money.Amount || !_rechargeBar.TimerEnded())
         {
             return true;
         }
