@@ -483,6 +483,27 @@ public class GameManager : MonoBehaviour
         return foundBooth;
     }
 
+    public Vector2 GetNearestEnemy(Vector2 pos)
+    {
+        float closestDist = float.MaxValue;
+        Vector2 closestEnemy = Vector2.zero;
+        for (int i = 0; i < _enemyContainer.transform.childCount; i++)
+        {
+            Vector2 enemypos = _enemyContainer.transform.GetChild(i).position;
+            if (Vector2.SqrMagnitude(pos - enemypos) < closestDist)
+            {
+                closestDist = Vector2.SqrMagnitude(pos - enemypos);
+                closestEnemy = enemypos;
+            }
+        }
+        if (closestEnemy == Vector2.zero)
+        {
+            closestEnemy = Vector2.zero;
+        }
+
+        return closestEnemy;
+    }
+
     //Applies damage to all enemies in a range of a spell
     public void ApplyDamage(Vector2 pos, float dam)
     {
