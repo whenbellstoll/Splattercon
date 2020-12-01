@@ -10,8 +10,13 @@ public class Enemy : MonoBehaviour
     private EnemyType _type;
 
     private Rigidbody2D _rb;
-    private float _maxSpeed = 5.0f;
-    private float _maxHealth = 100;
+    private float _maxSpeed = 7.0f;
+    private float _baseSpeed = 2.0f;
+    private float _extraSpeed = 0.0f;
+    private float _extraHealth = 0.0f;
+    private float _speedMultiplier = 1.0f;
+    private float _baseHealth = 50;
+    private float _maxHealth = 250;
     private float _health;
     private float _viewRange = 3.0f;
     private float _widthMult = 0.8f;
@@ -27,9 +32,9 @@ public class Enemy : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _gm = GameObject.Find("GameManager").GetComponent<GameManager>();
-        _health = _maxHealth;
+        _health = Mathf.Min(_baseHealth + _extraHealth, _maxHealth);
         _healthBar = GetComponent<HealthBar>();
-        _healthBar.SetMaxHealth(_maxHealth);
+        _healthBar.SetMaxHealth(_health);
         _healthBar.UpdateHealth(_health);
         spellSpeed = 1.0f;
     }
@@ -43,6 +48,12 @@ public class Enemy : MonoBehaviour
             SeekAttendeeAI();
     }
 
+    public void SetProgressionValues(float extraSpeed, float extraHealth)
+    {
+        _extraSpeed = extraSpeed;
+        _extraHealth = extraHealth;
+    }
+
     public void SeekAttendeeAI()
     {
         if(_type == EnemyType.Vampire)
@@ -51,11 +62,11 @@ public class Enemy : MonoBehaviour
             _destination = _gm.GetNearestAttendee(transform.position, _gm.GhostAttendeeContainer);
         Vector3 destination = _destination;
         //Check for obstacle
-        if (CheckObstacle(new Vector2(_destination.x, _destination.y)))
+        /*if (CheckObstacle(new Vector2(_destination.x, _destination.y)))
         {
             //Set destination to closest way to player that avoids obstacles
             destination = (Vector2)transform.position + AvoidObstacle(new Vector2(_destination.x, _destination.y));
-        }
+        }*/
 
         //Seek destination
         Vector3 netForce = Seek(destination);
@@ -116,7 +127,7 @@ public class Enemy : MonoBehaviour
     {
         //Set up desired velocity
         desiredVelocity = desiredVelocity.normalized;
-        desiredVelocity *= _maxSpeed;
+        desiredVelocity *= Mathf.Min(_maxSpeed, _baseSpeed + _extraSpeed);
         desiredVelocity *= spellSpeed;
 
         //Calc steering force
