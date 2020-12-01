@@ -210,17 +210,20 @@ public class GameManager : MonoBehaviour
                             //Spawn an attendee
                             if (_vampireEnemies <= 0)
                             {
-                                Instantiate(_ghostEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                                GameObject enemy = Instantiate(_ghostEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                                enemy.GetComponent<Enemy>().SetProgressionValues(Mathf.Max(0,_round) * 0.3f, Mathf.Max(0, _round) * 5);
                                 _ghostEnemies--;
                             }
                             else if (_ghostEnemies <= 0 || Random.Range(0, 2) == 0)
                             {
-                                Instantiate(_vampireEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                                GameObject enemy = Instantiate(_vampireEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                                enemy.GetComponent<Enemy>().SetProgressionValues(Mathf.Max(0, _round) * 0.2f, Mathf.Max(0, _round) * 8);
                                 _vampireEnemies--;
                             }
                             else
                             {
-                                Instantiate(_ghostEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                                GameObject enemy = Instantiate(_ghostEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
+                                enemy.GetComponent<Enemy>().SetProgressionValues(Mathf.Max(0, _round) * 0.3f, Mathf.Max(0, _round) * 5);
                                 _ghostEnemies--;
                             }
 
@@ -374,7 +377,7 @@ public class GameManager : MonoBehaviour
                 //Set Attendee values
                 _attendeeSpawnDelay = 0.5f;
                 _attendeeSpawnTimer = _attendeeSpawnDelay;
-                _attendeeCount = 8 + 2 * _round;
+                _attendeeCount = 8 + 2 * Mathf.Max(0, _round);
                 _vampireAttendees = _attendeeCount / 2;
                 _ghostAttendees = _attendeeCount - _vampireAttendees;
                 _attendeesSpawned = 0;
@@ -384,7 +387,7 @@ public class GameManager : MonoBehaviour
                 //Set up enemy values
                 _enemySpawnDelay = 4f - 3f * (1 / Mathf.Sqrt(_round));
                 _enemySpawnTimer = _enemySpawnDelay - 2.0f;
-                _enemyCount = 3 + 1 * _round;
+                _enemyCount = 3 + 1 * Mathf.Max(0, _round);
                 _enemiesSpawned = 0;
                 _vampireEnemies = _enemyCount / 2;
                 _ghostEnemies = _enemyCount - _vampireAttendees;
