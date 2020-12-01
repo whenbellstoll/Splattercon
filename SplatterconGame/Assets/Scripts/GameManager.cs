@@ -82,8 +82,6 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private Text _roundText;
     [SerializeField]
-    private Text _moneyText;
-    [SerializeField]
     private Text _attendeeText;
 	[SerializeField]
     private RectTransform _attendeeBar;
@@ -99,8 +97,6 @@ public class GameManager : MonoBehaviour
     private GameObject _pauseMenu;
     [SerializeField]
     private SceneData _sceneDataObject;
-
-    private int _money = 100;
 
     private GameState _gameState;
     private Placing _placing;
@@ -124,7 +120,6 @@ public class GameManager : MonoBehaviour
 
         _spellTime = 3;
 
-        _moneyText.text = "$" + _money.ToString();
     }
 
     // Update is called once per frame
@@ -146,14 +141,13 @@ public class GameManager : MonoBehaviour
                     }
                     break;
                 case GameState.Playing:
-                    _moneyText.text = "$"+_money.ToString();
                     //Checks if you can cast a spell
-                    if (Input.GetMouseButtonDown(1) && _spellTime > 2 && _money > 10)
+                    if (Input.GetMouseButtonDown(1) && _spellTime > 2 && !_select.IsZero())
                     {
                         Debug.Log(_select.GetCurrentSelectionName());
                         _castSpell.Cast(_select.GetCurrentSelectionName());
                         _spellTime = 0;
-                        _money -= 10;
+                        _select.SubtractMoney(10);
                     }
                     _spellTime += Time.deltaTime;
 
@@ -366,11 +360,11 @@ public class GameManager : MonoBehaviour
                 ClearBooths();
                 ClearEnemies();
                 _round++;
+
                 //Set booth values
-                Dictionary<string, int> boothAmounts = new Dictionary<string, int>();
-                boothAmounts.Add("Vampire Booth", 1 + _round / 2);
-                boothAmounts.Add("Ghost Booth", 1 + _round / 3);
-                _select.SetAmount(SelectionGroups.BOOTH, boothAmounts);
+                _select.SetAmount(SelectionGroups.BOOTH, "Vampire Booth", 1 + _round / 2);
+                _select.SetAmount(SelectionGroups.BOOTH, "Ghost Booth", 1 + _round / 3);
+
                 _select.ShowButtons();
 
                 _roundText.text = "Round " + _round;
@@ -388,14 +382,13 @@ public class GameManager : MonoBehaviour
                 //Set up enemy values
                 _enemySpawnDelay = 4f - 3f * (1 / Mathf.Sqrt(_round));
                 _enemySpawnTimer = _enemySpawnDelay - 2.0f;
-                _enemyCount = 3 + 1 * (_round / 2);
+                _enemyCount = 3 + 1 * _round;
                 _enemiesSpawned = 0;
                 _vampireEnemies = _enemyCount / 2;
                 _ghostEnemies = _enemyCount - _vampireAttendees;
 
                 //Set up Trap values
-                _trapsRemaining = 3 + _round / 2;
-                _select.SetAmount(SelectionGroups.TRAP, _trapsRemaining);
+                _select.SetAmount(SelectionGroups.TRAP, "Bear Trap", 27);
 
                 UpdateAttendeeText();
                 RandomizeSpawns();
@@ -575,8 +568,7 @@ public class GameManager : MonoBehaviour
     //Called when attendee makes it to the end of the path
     private void AttendeePassed(GameObject attendee)
     {
-        _money += 50;
-        _moneyText.text = "$" + _money;
+        _select.AddMoney(50);
         _attendeesPassed++;
         Destroy(attendee);
         UpdateAttendeeText();

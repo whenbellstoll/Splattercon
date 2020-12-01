@@ -33,14 +33,16 @@ public class Selection : MonoBehaviour
     [SerializeField]
     private Text _amountText;
     [SerializeField]
+    private Text _moneyText;
+    [SerializeField]
     private GameObject _zeroMask;
 
-    private List<SelectionGroup> _selectionGroups;
 
+    private List<SelectionGroup> _selectionGroups;
     private SelectionGroup _currentSelectedGroup;
+    private Money _money;
 
     private bool _playButtonClicked;
-
     public SelectionCallback OnSelectionChange;
 
     void Awake()
@@ -54,11 +56,12 @@ public class Selection : MonoBehaviour
         _playButton.onClick.AddListener(PlayButton);
 
         _selectionGroups = new List<SelectionGroup>();
+        _money = new Money(_moneyText, 100);
         
         // Create a new selection group where the options are the children in the parent group.
-        _selectionGroups.Add(new AmountSelectionGroup(SelectionGroups.BOOTH, _boothContainer, _amountText, _zeroMask));
-        _selectionGroups.Add(new AmountSelectionGroup(SelectionGroups.TRAP, _trapContainer, _amountText, _zeroMask));
-        _selectionGroups.Add(new SelectionGroup(SelectionGroups.SPELL, _spellContainer));
+        _selectionGroups.Add(new BoothGroup(_boothContainer, _money, _amountText, _zeroMask));
+        _selectionGroups.Add(new TrapGroup(_trapContainer, _money, _amountText, _zeroMask));
+        _selectionGroups.Add(new SpellGroup(_spellContainer, _money, _amountText, _zeroMask));
 
 
         // Start off with the booth selected
@@ -146,18 +149,17 @@ public class Selection : MonoBehaviour
 
 
     // Check to see if the current type we input is of the AmountSelectionGroup so we can call methods on that object
-    AmountSelectionGroup GetAmountSelection(SelectionGroups groupType)
+    SelectionGroup GetAmountSelection(SelectionGroups groupType)
     {
         foreach (SelectionGroup selectionGroup in _selectionGroups)
         {
-            if (selectionGroup is AmountSelectionGroup && selectionGroup.GroupType == groupType)
+            if (selectionGroup.GroupType == groupType)
             {
-                AmountSelectionGroup currentAmountSelection = (AmountSelectionGroup)selectionGroup;
-                return currentAmountSelection;
+                return selectionGroup;
             }
         }
 
-        throw new System.Exception("Selection group inputed is not of type AmountSelectionGroup");
+        throw new System.Exception("Could not find selection group inputed!");
     }
 
 
@@ -176,20 +178,11 @@ public class Selection : MonoBehaviour
         return _currentSelectedGroup.SelectionName;
     }
 
-
     // Check to see if the currently selected group has every single option at zero
     // !!! This should not be used to check if we have any current booths to place !!!
     public bool AllZero()
-    {
-        if(_currentSelectedGroup is AmountSelectionGroup)
-        {
-            AmountSelectionGroup currentAmountSelection = (AmountSelectionGroup)_currentSelectedGroup;
-            return currentAmountSelection.AllZero();
-        }
-        else
-        {
-            return false;
-        }
+    { 
+        return _currentSelectedGroup.AllZero();
     }
 
 
@@ -197,31 +190,15 @@ public class Selection : MonoBehaviour
     // !!! This is very useful in checking to see if we have any remaining booths to place !!!
     public bool AllZero(SelectionGroups groupType)
     {
-        foreach (SelectionGroup selectionGroup in _selectionGroups)
-        {
-            if (selectionGroup is AmountSelectionGroup && selectionGroup.GroupType == groupType)
-            {
-                AmountSelectionGroup currentAmountSelection = (AmountSelectionGroup)selectionGroup;
-                return currentAmountSelection.AllZero();
-            }
-        }
-
-        return false;
+        SelectionGroup currentAmountSelection = GetAmountSelection(groupType);
+        return currentAmountSelection.AllZero();
     }
 
     // Check to see if the option we have currently selected has any remaining objects we can place.
     // !!! Very useful in checking to see if we can place anymore traps, or booths !!!
     public bool IsZero()
     {
-        if (_currentSelectedGroup is AmountSelectionGroup)
-        {
-            AmountSelectionGroup currentAmountSelection = (AmountSelectionGroup)_currentSelectedGroup;
-            return currentAmountSelection.IsZero();
-        }
-        else
-        {
-            return false;
-        }
+        return _currentSelectedGroup.IsZero();
     }
 
     // This version of SetAmount will take in a number and evenly divide the amounts between the options in the groupType as best it can.
@@ -229,7 +206,7 @@ public class Selection : MonoBehaviour
     // !!! Very useful in passing in a single number to determine how many booths we can place !!!
     public void SetAmount(SelectionGroups groupType, int amount)
     {
-        AmountSelectionGroup currentAmountSelection = GetAmountSelection(groupType);
+        SelectionGroup currentAmountSelection = GetAmountSelection(groupType);
         currentAmountSelection.SetAmount(amount);
         _currentSelectedGroup.UpdateSprites();
     }
@@ -244,8 +221,15 @@ public class Selection : MonoBehaviour
 
     public void SetAmount(SelectionGroups groupType, List<int> amounts)
     {
-        AmountSelectionGroup currentAmountSelection = GetAmountSelection(groupType);
+        SelectionGroup currentAmountSelection = GetAmountSelection(groupType);
         currentAmountSelection.SetAmount(amounts);
+        _currentSelectedGroup.UpdateSprites();
+    }
+
+    public void SetAmount(SelectionGroups groupType, string objectName, int amount)
+    {
+        SelectionGroup currentAmountSelection = GetAmountSelection(groupType);
+        currentAmountSelection.SetAmount(objectName, amount);
         _currentSelectedGroup.UpdateSprites();
     }
 
@@ -258,7 +242,7 @@ public class Selection : MonoBehaviour
     // If you supply SelectionGroups.TRAP, [Bear Trap => 2, Lava Trap => 5] then Bear Trap would have 2, and Lava Trap would have 5
     public void SetAmount(SelectionGroups groupType, Dictionary<string, int> amounts)
     {
-        AmountSelectionGroup currentAmountSelection = GetAmountSelection(groupType);
+        SelectionGroup currentAmountSelection = GetAmountSelection(groupType);
         currentAmountSelection.SetAmount(amounts);
         _currentSelectedGroup.UpdateSprites();
     }
@@ -268,24 +252,28 @@ public class Selection : MonoBehaviour
     // !!! Very useful when we place an object !!!
     public void DecrementCurrentSelection()
     {
-        if (_currentSelectedGroup is AmountSelectionGroup)
+        _currentSelectedGroup.DecrementAmount();
+
+        if(_currentSelectedGroup.IsZero() && !_currentSelectedGroup.AllZero())
         {
-            AmountSelectionGroup currentAmountSelection = (AmountSelectionGroup)_currentSelectedGroup;
-            currentAmountSelection.DecrementAmount();
-            if(currentAmountSelection.IsZero() && !currentAmountSelection.AllZero())
+            while(_currentSelectedGroup.IsZero())
             {
-                while(currentAmountSelection.IsZero())
-                {
-                    currentAmountSelection.Increment();
-                }
-                OnSelectionChange?.Invoke();
+                _currentSelectedGroup.Increment();
             }
+            OnSelectionChange?.Invoke();
         }
+
         _currentSelectedGroup.UpdateSprites();
     }
 
+    public void AddMoney(int amount)
+    {
+        _money.AddMoney(amount);
+    }
 
-
+    public void SubtractMoney(int amount) {
+        _money.SubtractMoney(amount);
+    }
 
     public void HideButtons()
     {
@@ -316,17 +304,65 @@ public class Selection : MonoBehaviour
 }
 
 
+public class Money
+{
+
+    private Text _moneyText;
+    private int _amount;
+
+    public int Amount
+    {
+        get { return _amount; }
+
+    }
+
+    public Money(Text text, int staringAmount)
+    {
+        _moneyText = text;
+        _amount = staringAmount;
+
+
+    }
+
+    public void UpdateMoneyText()
+    {
+        _moneyText.text = "$" + _amount;
+    }
+
+    public void AddMoney(int addMoney)
+    {
+        _amount += addMoney;
+        UpdateMoneyText();
+    }
+
+    public void SubtractMoney(int subMoney)
+    {
+        _amount -= subMoney;
+        UpdateMoneyText();
+    }
+
+
+}
+
+
+
 /// <summary>
 /// Class which holds the different options for a certain selection group (i.e. Booths, Traps, or Spells)
 /// </summary>
-public class SelectionGroup
+public abstract class SelectionGroup
 {
 
-    private SelectionGroups _selectionGroup;
+    protected SelectionGroups _selectionGroup;
 
+    // This selection amount array should theoretically have the same amount of entries as the number of options we have
+    protected List<int> _selectionAmount;
     protected List<GameObject> _selections;
 
     protected int _selectionIndex;
+
+    protected Text _amountText; // The text for the amount we want to represent
+    protected Money _money;
+    protected GameObject _mask; // Opaque cover when we have none left
 
     // Get the current group this object represents
     public SelectionGroups GroupType
@@ -340,20 +376,33 @@ public class SelectionGroup
         get { return _selections[_selectionIndex].name; }
     }
 
-    public SelectionGroup(SelectionGroups selectionGroup, GameObject parentObject)
+    public SelectionGroup(GameObject parentObject, Money money, Text amountText, GameObject mask)
     {
 
-        _selectionGroup = selectionGroup;
+        _selectionGroup = SelectionGroups.BOOTH;
         _selections = GetChildren(parentObject);
         _selectionIndex = 0;
 
         // If there are no children that means we have no options to choose from so throw an error for safety.
-        if(_selections.Count == 0)
+        if (_selections.Count == 0)
         {
-            throw new System.Exception("Selection Group " + selectionGroup + " has no child objects! Please add child objects to the group.");
+            throw new System.Exception("Selection Group " + _selectionGroup + " has no child objects! Please add child objects to the group.");
         }
 
+        _selectionAmount = new List<int>();
+        _amountText = amountText;
+        _mask = mask;
+        _money = money;
+
+        SetAmount(0);
+
+
+
     }
+
+    public abstract void DecrementAmount();
+    public abstract bool AllZero();
+    public abstract bool IsZero();
 
     // Get all the children from the parent, and create a list of all the potential options we can select from.
     List<GameObject> GetChildren(GameObject parent)
@@ -434,77 +483,19 @@ public class SelectionGroup
         }
     }
 
-}
-
-
-/// <summary>
-/// This is a special type of selection group where we can also set the amounts of the objects we can place (used for Booths, and Traps)
-/// </summary>
-public class AmountSelectionGroup : SelectionGroup
-{
-
-    // This selection amount array should theoretically have the same amount of entries as the number of options we have
-    private List<int> _selectionAmount;
-
-    private Text _amountText; // The text for the amount we want to represent
-    private GameObject _mask; // Opaque cover when we have none left
-
-    public AmountSelectionGroup(SelectionGroups selectionGroup, GameObject parentObject, Text amountText, GameObject mask)
-        : base(selectionGroup, parentObject)
-    {
-
-        _selectionAmount = new List<int>();
-        _amountText = amountText;
-        _mask = mask;
-
-        SetAmount(0);
-
-    }
-
-    public override void UpdateSprites()
-    {
-        base.UpdateSprites();
-
-        // Update the current amount with the option we have selected
-        _amountText.gameObject.SetActive(true);
-        _amountText.text = "x" + _selectionAmount[_selectionIndex];
-
-        // If we have none left draw it with a mask
-        if(_selectionAmount[_selectionIndex] == 0)
-        {
-            _mask.SetActive(true);
-        }
-        else
-        {
-            _mask.SetActive(false);
-        }
-
-    }
-
-    public override void HideAll()
-    {
-
-        base.HideAll();
-
-        // Hide the mask, and text
-        _amountText.gameObject.SetActive(false);
-        _mask.SetActive(false);
-
-    }
-
 
     // This version of SetAmount will take in a number and evenly divide the amounts between the options as best it can.
     // For example, if we have 2 booths and we suplly 3 for amount then the first booth would have 2, and the second would have 1
     public void SetAmount(int amount)
     {
 
-        int splitAmount = (int) Mathf.Ceil((float)amount / _selections.Count);
+        int splitAmount = (int)Mathf.Ceil((float)amount / _selections.Count);
 
         _selectionAmount = new List<int>();
 
         for (int i = 0; i < _selections.Count; i++)
         {
-            if(amount - splitAmount <= 0)
+            if (amount - splitAmount <= 0)
             {
                 _selectionAmount.Add(amount);
             }
@@ -524,7 +515,7 @@ public class AmountSelectionGroup : SelectionGroup
     // So the first index will correspond to the first GameObject in whataever selection container we are in
     public void SetAmount(List<int> amounts)
     {
-        if(amounts.Count != _selections.Count)
+        if (amounts.Count != _selections.Count)
         {
             throw new System.Exception("List supplied does not have the same number of entries as the number of options!");
         }
@@ -534,6 +525,21 @@ public class AmountSelectionGroup : SelectionGroup
         for (int i = 0; i < amounts.Count; i++)
         {
             _selectionAmount.Add(amounts[i]);
+        }
+
+    }
+
+    // This version of SetAmount takes in a dictionary with the name of the option, and the amount we want to set it to.
+    // The name of the option is the SAME exact name as it is in the Unity Heirachy panel.
+    public void SetAmount(string objectName, int amount)
+    {
+
+        for (int i = 0; i < _selections.Count; i++)
+        {
+            if (objectName == _selections[i].name)
+            {
+                _selectionAmount[i] = amount;
+            }
         }
 
     }
@@ -559,8 +565,59 @@ public class AmountSelectionGroup : SelectionGroup
 
     }
 
+
+
+}
+
+
+/// <summary>
+/// This is a special type of selection group where we can also set the amounts of the objects we can place (used for Booths, and Traps)
+/// </summary>
+public class BoothGroup : SelectionGroup
+{
+
+
+    public BoothGroup(GameObject parentObject, Money money, Text amountText, GameObject mask)
+        : base(parentObject, money, amountText, mask)
+    {
+
+        _selectionGroup = SelectionGroups.BOOTH;
+    }
+
+    public override void UpdateSprites()
+    {
+        base.UpdateSprites();
+
+        // Update the current amount with the option we have selected
+        _amountText.gameObject.SetActive(true);
+        _amountText.text = "x" + _selectionAmount[_selectionIndex];
+        
+
+        // If we have none left draw it with a mask
+        if(_selectionAmount[_selectionIndex] == 0)
+        {
+            _mask.SetActive(true);
+        }
+        else
+        {
+            _mask.SetActive(false);
+        }
+
+    }
+
+    public override void HideAll()
+    {
+
+        base.HideAll();
+
+        // Hide the mask, and text
+        _amountText.gameObject.SetActive(false);
+        _mask.SetActive(false);
+
+    }
+
     // Decrease the current amount we have selected.
-    public void DecrementAmount()
+    public override void DecrementAmount()
     {
         _selectionAmount[_selectionIndex]--;
         if (_selectionAmount[_selectionIndex] < 0)
@@ -569,7 +626,7 @@ public class AmountSelectionGroup : SelectionGroup
 
 
     // Test to see if all the options in the group have zero left (this will be helpful in detecting if we have placed all the booths)
-    public bool AllZero()
+    public override bool AllZero()
     {
 
         bool allZero = true;
@@ -587,9 +644,185 @@ public class AmountSelectionGroup : SelectionGroup
 
 
     // Test to see if there are any things left to place (this will be useful when we want to see if we can place any more objects.)
-    public bool IsZero()
+    public override bool IsZero()
     {
         if(_selectionAmount[_selectionIndex] <= 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+}
+
+
+/// <summary>
+/// This is a special type of selection group where we can also set the amounts of the objects we can place (used for Booths, and Traps)
+/// </summary>
+public class TrapGroup : SelectionGroup
+{
+
+
+    public TrapGroup(GameObject parentObject, Money money, Text amountText, GameObject mask)
+        : base(parentObject, money, amountText, mask)
+    {
+
+        _selectionGroup = SelectionGroups.TRAP;
+    }
+
+    public override void UpdateSprites()
+    {
+        base.UpdateSprites();
+
+        // Update the current amount with the option we have selected
+        _amountText.gameObject.SetActive(true);
+        _amountText.text = "$" + _selectionAmount[_selectionIndex];
+
+        // If we have none left draw it with a mask
+        if (_selectionAmount[_selectionIndex] > _money.Amount)
+        {
+            _mask.SetActive(true);
+        }
+        else
+        {
+            _mask.SetActive(false);
+        }
+
+    }
+
+    public override void HideAll()
+    {
+
+        base.HideAll();
+
+        // Hide the mask, and text
+        _amountText.gameObject.SetActive(false);
+        _mask.SetActive(false);
+
+    }
+
+    public override void DecrementAmount()
+    {
+
+        int currentAmount = _selectionAmount[_selectionIndex];
+
+        // If we have none left draw it with a mask
+        if (currentAmount <= _money.Amount)
+        {
+            _money.SubtractMoney(currentAmount);
+        }
+    }
+
+    public override bool AllZero()
+    {
+        bool allZero = true;
+
+        for (int i = 0; i < _selectionAmount.Count; i++)
+        {
+            if (_selectionAmount[i] <= _money.Amount)
+            {
+                allZero = false;
+            }
+        }
+
+        return allZero;
+    }
+
+    public override bool IsZero()
+    {
+        if (_selectionAmount[_selectionIndex] > _money.Amount)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
+
+
+/// <summary>
+/// This is a special type of selection group where we can also set the amounts of the objects we can place (used for Booths, and Traps)
+/// </summary>
+public class SpellGroup : SelectionGroup
+{
+
+
+    public SpellGroup(GameObject parentObject, Money money, Text amountText, GameObject mask)
+        : base(parentObject, money, amountText, mask)
+    {
+
+        _selectionGroup = SelectionGroups.SPELL;
+    }
+
+    public override void UpdateSprites()
+    {
+        base.UpdateSprites();
+
+        // Update the current amount with the option we have selected
+        _amountText.gameObject.SetActive(true);
+        _amountText.text = "$" + _selectionAmount[_selectionIndex];
+
+        // If we have none left draw it with a mask
+        if (_selectionAmount[_selectionIndex] > _money.Amount)
+        {
+            _mask.SetActive(true);
+        }
+        else
+        {
+            _mask.SetActive(false);
+        }
+
+    }
+
+    public override void HideAll()
+    {
+
+        base.HideAll();
+
+        // Hide the mask, and text
+        _amountText.gameObject.SetActive(false);
+        _mask.SetActive(false);
+
+    }
+
+
+
+    public override void DecrementAmount()
+    {
+
+        int currentAmount = _selectionAmount[_selectionIndex];
+
+        // If we have none left draw it with a mask
+        if (currentAmount <= _money.Amount)
+        {
+            _money.SubtractMoney(currentAmount);
+        }
+    }
+
+    public override bool AllZero()
+    {
+        bool allZero = true;
+
+        for (int i = 0; i < _selectionAmount.Count; i++)
+        {
+            if (_selectionAmount[i] <= _money.Amount)
+            {
+                allZero = false;
+            }
+        }
+
+        return allZero;
+    }
+
+    public override bool IsZero()
+    {
+        if (_selectionAmount[_selectionIndex] > _money.Amount)
         {
             return true;
         }
