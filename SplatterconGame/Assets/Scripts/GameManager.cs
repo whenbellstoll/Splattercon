@@ -321,6 +321,7 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame(){
 		_pauseMenu.SetActive(true);
+        _placing.CancelPlacing();
         PAUSED = true;
 		Time.timeScale = 0f;
 	}
@@ -328,7 +329,8 @@ public class GameManager : MonoBehaviour
 
     public void ResumeGame(){
 		_pauseMenu.SetActive(false);
-		PAUSED = false;
+        _placing.ResumePlacing();
+        PAUSED = false;
 		Time.timeScale = 1.0f;
 	}
 

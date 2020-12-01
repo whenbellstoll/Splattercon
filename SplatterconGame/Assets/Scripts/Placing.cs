@@ -163,6 +163,12 @@ public class Placing : MonoBehaviour
         _placing = false;
     }
 
+    public void ResumePlacing()
+    {
+        _previewSprite.gameObject.SetActive(true);
+        _placing = true;
+    }
+
     //Checks if object is valid for placing
     public bool CanPlace(Vector2 pos)
     {
