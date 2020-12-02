@@ -106,6 +106,8 @@ public class GameManager : MonoBehaviour
     private int _boothsRemaining = 0;
     private int _trapsRemaining = 0;
 
+    private const int MAX_BOOTHS = 7;
+
     private const float MIN_SPAWN_NODE_DISTANCE = 4.0f;
 
     // Start is called before the first frame update
@@ -369,8 +371,8 @@ public class GameManager : MonoBehaviour
                 _round++;
 
                 //Set booth values
-                _select.SetAmount(SelectionGroups.BOOTH, "Vampire Booth", 1 + _round / 2);
-                _select.SetAmount(SelectionGroups.BOOTH, "Ghost Booth", 1 + _round / 3);
+                _select.SetAmount(SelectionGroups.BOOTH, "Vampire Booth", Mathf.Min(MAX_BOOTHS, 1 + _round / 2));
+                _select.SetAmount(SelectionGroups.BOOTH, "Ghost Booth", Mathf.Min(MAX_BOOTHS, 1 + _round / 3));
 
                 _select.SetAmount(SelectionGroups.SPELL, "Fire Spell", 10);
                 _select.SetAmount(SelectionGroups.SPELL, "Snow Spell", 10);
@@ -390,7 +392,7 @@ public class GameManager : MonoBehaviour
                 _attendeesPassed = 0;
 
                 //Set up enemy values
-                _enemySpawnDelay = 4f - 3f * (1 / Mathf.Sqrt(_round));
+                _enemySpawnDelay = 2f * (1 / Mathf.Sqrt(_round));
                 _enemySpawnTimer = _enemySpawnDelay - 2.0f;
                 _enemyCount = 3 + 1 * Mathf.Max(0, _round);
                 _enemiesSpawned = 0;
@@ -599,7 +601,7 @@ public class GameManager : MonoBehaviour
     //Called when attendee makes it to the end of the path
     private void AttendeePassed(GameObject attendee)
     {
-        _select.AddMoney(50);
+        _select.AddMoney(25);
         _attendeesPassed++;
         Destroy(attendee);
         UpdateAttendeeText();
