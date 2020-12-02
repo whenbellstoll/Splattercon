@@ -9,19 +9,13 @@ public class SlowSpell : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        time = 0;
         _gm = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        time += Time.deltaTime;
-        if (time > 0.5f)
-        {
-            _gm.ApplySlow(transform.position, 0.1f);
-            time = 0;
-        }
+        _gm.ApplySlow(transform.position, 0.98f);
         
     }
 
