@@ -18,6 +18,9 @@ public class FollowPath : MonoBehaviour
 
     private float _pauseTimer = 0;
 
+    [SerializeField]
+    private GameObject _deathParticles;
+
     public FinalNodeCallback FinalNodeReached;
 
     // Use this for initialization
@@ -115,5 +118,10 @@ public class FollowPath : MonoBehaviour
         {
             velocity = desiredVelocity * 3;
         }
+    }
+
+    public void Death()
+    {
+        Instantiate(_deathParticles, transform.position, _deathParticles.transform.rotation);
     }
 }

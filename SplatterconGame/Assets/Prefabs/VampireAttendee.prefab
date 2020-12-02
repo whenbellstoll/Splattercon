@@ -93,7 +93,7 @@ GameObject:
   - component: {fileID: 245933739903182318}
   - component: {fileID: 245933739903182319}
   m_Layer: 0
-  m_Name: Attendee
+  m_Name: VampireAttendee
   m_TagString: Attendee
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -127,6 +127,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodes: []
+  _deathParticles: {fileID: 4665181820844003124, guid: 08f3c5733a5fac946a18b3497b182d48,
+    type: 3}
 --- !u!61 &245933739903182319
 BoxCollider2D:
   m_ObjectHideFlags: 0

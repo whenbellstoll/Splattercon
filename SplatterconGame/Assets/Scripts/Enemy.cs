@@ -11,7 +11,7 @@ public class Enemy : MonoBehaviour
 
     private Rigidbody2D _rb;
     private float _maxSpeed = 7.0f;
-    private float _baseSpeed = 2.0f;
+    private float _baseSpeed = 3.0f;
     private float _extraSpeed = 0.0f;
     private float _extraHealth = 0.0f;
     private float _speedMultiplier = 1.0f;
@@ -259,6 +259,7 @@ public class Enemy : MonoBehaviour
     {
         if(collision.gameObject.tag == "Attendee" && _pauseTimer <= 0)
         {
+            collision.gameObject.GetComponent<FollowPath>().Death();
             Destroy(collision.gameObject);
             _pauseTimer = 1.0f;
             _rb.velocity = Vector2.zero;
