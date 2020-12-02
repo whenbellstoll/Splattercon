@@ -68,7 +68,7 @@ public class Selection : MonoBehaviour
         _playButton.onClick.AddListener(PlayButton);
 
         _selectionGroups = new List<SelectionGroup>();
-        _money = new Money(_moneyText, 100);
+        _money = new Money(_moneyText, 350);
         _rechargeBar = new RechargeBar(_rechargeBarTransform, _maxRechargeBarSize, _rechargeBarInitialX, _rechargeRate);
         _selectionButtonInitialPosition = _selectionButton.transform.localPosition;
 
@@ -369,6 +369,8 @@ public class Money
     {
         _moneyText = text;
         _amount = staringAmount;
+
+        UpdateMoneyText();
 
 
     }
@@ -927,6 +929,8 @@ public class SpellGroup : SelectionGroup
     {
 
         int currentAmount = _selectionAmount[_selectionIndex];
+
+        Debug.Log(currentAmount);
 
         // If we have none left draw it with a mask
         if (currentAmount <= _money.Amount && _rechargeBar.TimerEnded())

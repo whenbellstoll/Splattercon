@@ -149,7 +149,6 @@ public class GameManager : MonoBehaviour
                         _castSpell.Cast(_select.GetCurrentSelectionName());
                         _spellTime = 0;
                         _select.DecrementCurrentSelection();
-                        _select.SubtractMoney(10);
                     }
                     _spellTime += Time.deltaTime;
 
