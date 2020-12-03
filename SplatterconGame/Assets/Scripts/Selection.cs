@@ -930,8 +930,6 @@ public class SpellGroup : SelectionGroup
 
         int currentAmount = _selectionAmount[_selectionIndex];
 
-        Debug.Log(currentAmount);
-
         // If we have none left draw it with a mask
         if (currentAmount <= _money.Amount && _rechargeBar.TimerEnded())
         {

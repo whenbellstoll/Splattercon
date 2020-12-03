@@ -18,10 +18,14 @@ public class SetScore : MonoBehaviour
         sceneData = GameObject.Find("SceneData").GetComponent<SceneData>();
         text = this.gameObject.GetComponent<Text>();
 
+        Debug.Log(sceneData.GetScore().ToString());
+
         if (sceneData != null)
         {
             text.text = "Survived " + sceneData.GetScore().ToString() + " Rounds!";
         }
+
+        Destroy(sceneData.gameObject);
 
     }
 

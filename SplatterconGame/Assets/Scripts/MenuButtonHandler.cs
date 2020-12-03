@@ -46,6 +46,16 @@ public class MenuButtonHandler : MonoBehaviour
     public void MenuButton()
     {
         SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+
+    }
+
+    public void DestroySceneData()
+    {
+        if (GameObject.Find("SceneData") != null)
+        {
+            SceneData sceneData = GameObject.Find("SceneData").GetComponent<SceneData>();
+            Destroy(sceneData.gameObject);
+        }
     }
 
 }
