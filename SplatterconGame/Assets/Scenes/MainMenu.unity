@@ -343,7 +343,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2.9, y: -24.895}
+  m_AnchoredPosition: {x: 2.9, y: -41}
   m_SizeDelta: {x: 382.66132, y: 280.49377}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &64858260
@@ -378,15 +378,15 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: You take the role of an event manager for a annual  horror convention held
+  m_Text: You take the role of an event manager for an annual horror convention held
     in Chicago. You have a sneaking suspicion however that something this year will
-    go arrie. You heard a word from being in the paranet, a group of humans with
-    limited magical abilities, that a gang of supernatural beings are planning on
-    attacking the event. You need to protect the guest so you set up traps with the
-    help of a local wizard, and position the booths before the guests begin coming
-    in. You also have some spells to use if things get out of control. Will you be
-    able to protect the convention from these dastardly beings while also providing
-    a great time, you get one opportunity to find out...
+    go awry. You heard word from being in the paranet, a group of humans with limited
+    magical abilities, that a gang of supernatural beings is planning on attacking
+    the event. You need to protect the guests so you set up traps with the help of
+    a local wizard, and position the booths before the guests begin coming in. You
+    also have some spells to use if things get out of control. Will you be able to
+    protect the convention from these dastardly beings while also providing a great
+    time!
 --- !u!222 &64858261
 CanvasRenderer:
   m_ObjectHideFlags: 0
