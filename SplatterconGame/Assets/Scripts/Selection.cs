@@ -153,7 +153,6 @@ public class Selection : MonoBehaviour
 
     void PlayButton()
     {
-
         if (AllZero(SelectionGroups.BOOTH))
         {
             _playButtonClicked = true;
