@@ -133,6 +133,8 @@ public class GameManager : MonoBehaviour
             {
                 case GameState.BoothPlacing:
 
+                    _select.UpdatePlayMask();
+
                     if(_select.PlayButtonClicked() && _select.AllZero(SelectionGroups.BOOTH))
                     {
                         SetGameState(GameState.Playing);
