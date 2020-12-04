@@ -78,6 +78,15 @@ public class GameManager : MonoBehaviour
     //[SerializeField]
     //private GameObject _slowSpell;
 
+    [Header("Tutorial Stuff")]
+    [SerializeField]
+    private GameObject _tutorial;
+    [SerializeField]
+    private GameObject _tutorialTextOne;
+    [SerializeField]
+    private GameObject _tutorialTextTwo;
+
+
     [Header("Other stuff")]
     [SerializeField]
     private Text _roundText;
@@ -102,7 +111,7 @@ public class GameManager : MonoBehaviour
     private Placing _placing;
     private Selection _select;
     private CastSpell _castSpell;
-    private int _round = 0;
+    private int _round = -2;
     private int _boothsRemaining = 0;
     private int _trapsRemaining = 0;
 
@@ -145,6 +154,13 @@ public class GameManager : MonoBehaviour
 
                         _select.HideButtons();
                     }
+                    
+                    if( _round < 1 && _select.AllZero(SelectionGroups.BOOTH) && _select.PlayButtonClicked() )
+                    {
+                        _tutorialTextOne.SetActive(false);
+                        _tutorialTextTwo.SetActive(false);
+                    }
+
                     break;
                 case GameState.Playing:
                     //Checks if you can cast a spell
@@ -217,18 +233,30 @@ public class GameManager : MonoBehaviour
                             {
                                 GameObject enemy = Instantiate(_ghostEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
                                 enemy.GetComponent<Enemy>().SetProgressionValues(Mathf.Max(0,_round) * 0.3f, Mathf.Max(0, _round) * 5);
+                                if( _round < 1 )
+                                {
+                                    enemy.GetComponent<Enemy>().SetProgressionValues( 0.3f, 5);
+                                }
                                 _ghostEnemies--;
                             }
                             else if (_ghostEnemies <= 0 || Random.Range(0, 2) == 0)
                             {
                                 GameObject enemy = Instantiate(_vampireEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
                                 enemy.GetComponent<Enemy>().SetProgressionValues(Mathf.Max(0, _round) * 0.2f, Mathf.Max(0, _round) * 8);
+                                if (_round < 1)
+                                {
+                                    enemy.GetComponent<Enemy>().SetProgressionValues(0.2f, 8);
+                                }
                                 _vampireEnemies--;
                             }
                             else
                             {
                                 GameObject enemy = Instantiate(_ghostEnemyPrefab, _spawnNode.transform.position, Quaternion.identity, _enemyContainer.transform);
                                 enemy.GetComponent<Enemy>().SetProgressionValues(Mathf.Max(0, _round) * 0.3f, Mathf.Max(0, _round) * 5);
+                                if (_round < 1)
+                                {
+                                    enemy.GetComponent<Enemy>().SetProgressionValues(0.3f, 5);
+                                }
                                 _ghostEnemies--;
                             }
 
@@ -342,6 +370,17 @@ public class GameManager : MonoBehaviour
 		Time.timeScale = 1.0f;
 	}
 
+    public void SkipDemo(){
+        _tutorial.SetActive(false);
+        _round = 0;
+        SetGameState(GameState.BoothPlacing);
+    }
+
+    public int GetRound(){
+        return _round;
+    }
+
+
     private bool CanPlaceBooth(Vector2 pos)
     {
         for(int i = 0; i < _vampireBoothContainer.transform.childCount; i++)
@@ -370,22 +409,46 @@ public class GameManager : MonoBehaviour
                 ClearBooths();
                 ClearEnemies();
                 _round++;
+                
+                if( _round == 1)
+                {
+                    _tutorial.SetActive(false);
+                }
+                
+                if( _round == 0 )
+                {
+                    _tutorialTextTwo.SetActive(true);
+                }
 
                 //Set booth values
-                _select.SetAmount(SelectionGroups.BOOTH, "Vampire Booth", Mathf.Min(MAX_BOOTHS, 1 + _round / 2));
-                _select.SetAmount(SelectionGroups.BOOTH, "Ghost Booth", Mathf.Min(MAX_BOOTHS, 1 + _round / 3));
-
+                if (_round > 0){
+                    _select.SetAmount(SelectionGroups.BOOTH, "Vampire Booth", Mathf.Min(MAX_BOOTHS, 1 + _round / 2));
+                    _select.SetAmount(SelectionGroups.BOOTH, "Ghost Booth", Mathf.Min(MAX_BOOTHS, 1 + _round / 3));
+                }
+                else{
+                    _select.SetAmount(SelectionGroups.BOOTH, "Vampire Booth", Mathf.Min(MAX_BOOTHS, 1));
+                    _select.SetAmount(SelectionGroups.BOOTH, "Ghost Booth", Mathf.Min(MAX_BOOTHS, 1));
+                }
                 _select.SetAmount(SelectionGroups.SPELL, "Fire Spell", 10);
                 _select.SetAmount(SelectionGroups.SPELL, "Snow Spell", 10);
 
                 _select.ShowButtons();
 
                 _roundText.text = "Round " + _round;
+                if (_round <= 0)
+                    _roundText.text = "Tutorial";
                 OnSelectionChange();
                 //Set Attendee values
                 _attendeeSpawnDelay = 0.5f;
                 _attendeeSpawnTimer = _attendeeSpawnDelay;
-                _attendeeCount = 8 + 2 * Mathf.Max(0, _round);
+                // conditional for tutorial
+                if (_round > 0){
+                    _attendeeCount = 8 + 2 * Mathf.Max(0, _round);
+                }
+                else{ //tutorial
+                    _attendeeCount = 8;
+                }
+
                 _vampireAttendees = _attendeeCount / 2;
                 _ghostAttendees = _attendeeCount - _vampireAttendees;
                 _attendeesSpawned = 0;
@@ -393,13 +456,33 @@ public class GameManager : MonoBehaviour
                 _attendeesPassed = 0;
 
                 //Set up enemy values
-                _enemySpawnDelay = 2f * (1 / Mathf.Sqrt(_round));
-                _enemySpawnTimer = _enemySpawnDelay - 2.0f;
-                _enemyCount = 3 + 1 * Mathf.Max(0, _round);
-                _enemiesSpawned = 0;
-                _vampireEnemies = _enemyCount / 2;
-                _ghostEnemies = _enemyCount - _vampireAttendees;
-
+                if (_round > 0)
+                {
+                    _enemySpawnDelay = 2f * (1 / Mathf.Sqrt(_round));
+                    _enemySpawnTimer = _enemySpawnDelay - 2.0f;
+                    _enemyCount = 3 + 1 * Mathf.Max(0, _round);
+                    _enemiesSpawned = 0;
+                    _vampireEnemies = _enemyCount / 2;
+                    _ghostEnemies = _enemyCount - _vampireAttendees;
+                }
+                else if( _round == -1 )
+                {
+                    _enemySpawnDelay = 2f;
+                    _enemySpawnTimer = _enemySpawnDelay - 2.0f;
+                    _enemyCount = 3;
+                    _enemiesSpawned = 0;
+                    _vampireEnemies = _enemyCount;
+                    _ghostEnemies = 0;
+                }
+                else if( _round == 0 )
+                {
+                    _enemySpawnDelay = 2f;
+                    _enemySpawnTimer = _enemySpawnDelay - 2.0f;
+                    _enemyCount = 4;
+                    _enemiesSpawned = 0;
+                    _vampireEnemies = _enemyCount / 2;
+                    _ghostEnemies = _enemyCount - _vampireAttendees;
+                }
                 //Set up Trap values
                 _select.SetAmount(SelectionGroups.TRAP, "Bear Trap", 100);
 
