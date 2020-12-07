@@ -69,6 +69,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject _bearTrapPrefab;
     [SerializeField]
+    private GameObject _staffTrapPrefab;
+    [SerializeField]
     private GameObject _trapContainer;
 
 
@@ -316,6 +318,17 @@ public class GameManager : MonoBehaviour
                         _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
                     }
                     break;
+                case "Staff Trap":
+                    if (!_select.IsZero())
+                    {
+                        _placing.StartPlacing(_staffTrapPrefab, _trapContainer, ObjectPlaced);
+                    }
+                    //Currently can not stop placing traps without clicking a button so you can place infinite traps
+                    else
+                    {
+                        _placing.StartPlacing(_staffTrapPrefab, _trapContainer, ObjectPlaced);
+                    }
+                    break;
                 default:
                     //_placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
                     break;
@@ -346,6 +359,17 @@ public class GameManager : MonoBehaviour
                         else
                         {
                             _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
+                        }
+                        break;
+                    case "Staff Trap":
+                        if (!_select.IsZero())
+                        {
+                            _placing.StartPlacing(_staffTrapPrefab, _trapContainer, ObjectPlaced);
+                        }
+                        //Currently can not stop placing traps without clicking a button so you can place infinite traps
+                        else
+                        {
+                            _placing.StartPlacing(_staffTrapPrefab, _trapContainer, ObjectPlaced);
                         }
                         break;
                     default:
@@ -492,6 +516,7 @@ public class GameManager : MonoBehaviour
                 }
                 //Set up Trap values
                 _select.SetAmount(SelectionGroups.TRAP, "Bear Trap", 100);
+                _select.SetAmount(SelectionGroups.TRAP, "Staff Trap", 100);
 
                 UpdateAttendeeText();
                 RandomizeSpawns();
