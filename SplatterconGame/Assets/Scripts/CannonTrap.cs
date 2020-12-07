@@ -23,18 +23,18 @@ public class CannonTrap : MonoBehaviour
         
         Vector3 lookAt = _gm.GetNearestEnemy(transform.position);
 
-        if (lookAt != Vector3.zero && Vector2.Distance(lookAt, transform.position) < 5f)
+        if (lookAt != Vector3.zero && Vector2.Distance(lookAt, transform.position) < 10f)
         {
             float AngleRad = Mathf.Atan2(lookAt.y - this.transform.position.y, lookAt.x - this.transform.position.x);
 
-            float AngleDeg = (180 / Mathf.PI) * AngleRad;
+            float AngleDeg = (180 / Mathf.PI) * AngleRad + 270;
 
             transform.rotation = Quaternion.Euler(0, 0, AngleDeg);
 
             timer += Time.deltaTime;
             if (timer > 1.5f)
             {
-                Destroy(Instantiate(projectile), 5.0f);
+                Destroy(Instantiate(projectile, new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.rotation), 2.0f);
                 timer = 0;
             }
         }

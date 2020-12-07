@@ -17,6 +17,12 @@ public class CannonBall : MonoBehaviour
     {
         Vector2 pos = _gm.GetNearestEnemy(transform.position);
         transform.position = Vector2.MoveTowards(transform.position, pos, 10f * Time.deltaTime);
+
+        float AngleRad = Mathf.Atan2(pos.y - this.transform.position.y, pos.x - this.transform.position.x);
+
+        float AngleDeg = (180 / Mathf.PI) * AngleRad + 270;
+
+        transform.rotation = Quaternion.Euler(0, 0, AngleDeg);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
