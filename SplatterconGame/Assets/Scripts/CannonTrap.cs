@@ -10,10 +10,14 @@ public class CannonTrap : MonoBehaviour
     private GameManager _gm;
     private float timer;
 
+    private AudioSource _audioSource;
+    public AudioClip _shoot;
+
     // Start is called before the first frame update
     void Start()
     {
         _gm = GameObject.Find("GameManager").GetComponent<GameManager>();
+        _audioSource = GetComponent<AudioSource>();
         timer = 5;
     }
 
@@ -34,6 +38,7 @@ public class CannonTrap : MonoBehaviour
             timer += Time.deltaTime;
             if (timer > 1.5f)
             {
+                _audioSource.PlayOneShot(_shoot);
                 Destroy(Instantiate(projectile, new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.rotation), 2.0f);
                 timer = 0;
             }
