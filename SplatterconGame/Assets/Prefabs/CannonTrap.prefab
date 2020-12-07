@@ -102,6 +102,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectile: {fileID: 7530387443212523039, guid: 07a669cfb30b53b4ea0a07de0b1687b7,
     type: 3}
+  _shootParticles: {fileID: 5489520517777630127, guid: 1e51319e00ffc094e9a7a8c4c9cba6e8,
+    type: 3}
   _shoot: {fileID: 8300000, guid: 3699b22c9041fd64da5995a619d0e287, type: 3}
 --- !u!82 &2370438335977542322
 AudioSource:
