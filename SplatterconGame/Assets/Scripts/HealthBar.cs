@@ -14,9 +14,13 @@ public class HealthBar : MonoBehaviour
     //health bar
     public Slider slider;
 
+    private AudioSource _audioSource;
+    public AudioClip enemay_death;
+
     // Start is called before the first frame update
     void Start()
     {
+        _audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -60,6 +64,7 @@ public class HealthBar : MonoBehaviour
         if (currentHealth <= 0)
         {
             currentHealth = 0;
+            _audioSource.PlayOneShot(enemay_death);
             Destroy(gameObject);
         }
     }

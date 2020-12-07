@@ -32,6 +32,10 @@ public class Placing : MonoBehaviour
     private float _boundsMargin = 1.0f;
     private Selection _select;
 
+    private AudioSource _audioData;
+
+    public AudioClip place_sound;
+
     Vector2 localPoint;
 
     // Start is called before the first frame update
@@ -48,6 +52,8 @@ public class Placing : MonoBehaviour
         _previewSprite.gameObject.SetActive(false);
 
         _select = GetComponent<Selection>();
+
+        _audioData = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -78,6 +84,7 @@ public class Placing : MonoBehaviour
                 _previewSprite.gameObject.SetActive(false);
                 Instantiate(_placingPrefab, mousePos, _placingPrefab.transform.rotation, _placedObjectContainer.transform);
                 _placing = false;
+                _audioData.PlayOneShot(place_sound, 0.2f);
                 PlaceCallback?.Invoke();
             }
 

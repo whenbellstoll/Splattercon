@@ -27,6 +27,10 @@ public class Enemy : MonoBehaviour
 
     private float _pauseTimer = 0;
 
+    private AudioSource audioSource;
+
+    public AudioClip attend_death;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +40,7 @@ public class Enemy : MonoBehaviour
         _healthBar = GetComponent<HealthBar>();
         _healthBar.SetMaxHealth(_health);
         _healthBar.UpdateHealth(_health);
+        audioSource = GetComponent<AudioSource>();
         spellSpeed = 1.0f;
     }
 
@@ -257,8 +262,10 @@ public class Enemy : MonoBehaviour
     //Kill attendee on coming in contact with them
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        
         if(collision.gameObject.tag == "Attendee" && _pauseTimer <= 0)
         {
+            audioSource.PlayOneShot(attend_death);
             collision.gameObject.GetComponent<FollowPath>().Death();
             Destroy(collision.gameObject);
             _pauseTimer = 1.0f;

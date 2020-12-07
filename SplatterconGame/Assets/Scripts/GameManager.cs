@@ -107,6 +107,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private SceneData _sceneDataObject;
 
+    private AudioSource _audioSource;
+
     private GameState _gameState;
     private Placing _placing;
     private Selection _select;
@@ -126,11 +128,12 @@ public class GameManager : MonoBehaviour
         _select = GetComponent<Selection>();
         _castSpell = GetComponent<CastSpell>();
         _select.OnSelectionChange = OnSelectionChange;
+        _audioSource = GetComponent<AudioSource>();
 
         SetGameState(GameState.BoothPlacing);
 
         _spellTime = 3;
-
+        _audioSource.Play();
     }
 
     // Update is called once per frame
@@ -143,6 +146,8 @@ public class GameManager : MonoBehaviour
                 case GameState.BoothPlacing:
 
                     _select.UpdatePlayMask();
+
+                    
 
                     if(_select.PlayButtonClicked() && _select.AllZero(SelectionGroups.BOOTH))
                     {
@@ -356,6 +361,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void PauseGame(){
+        _audioSource.volume = .01f;
 		_pauseMenu.SetActive(true);
         _placing.CancelPlacing();
         PAUSED = true;
@@ -364,7 +370,8 @@ public class GameManager : MonoBehaviour
 
 
     public void ResumeGame(){
-		_pauseMenu.SetActive(false);
+        _audioSource.volume = .05f;
+        _pauseMenu.SetActive(false);
         _placing.ResumePlacing();
         PAUSED = false;
 		Time.timeScale = 1.0f;

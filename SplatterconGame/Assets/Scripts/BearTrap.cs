@@ -12,6 +12,9 @@ public class BearTrap : MonoBehaviour
     public Sprite closedSprite;
     public Sprite openSprite;
 
+    private AudioSource audioData;
+    public AudioClip close_trap;
+
     enum State
     {
         TRIGGERED,
@@ -28,7 +31,8 @@ public class BearTrap : MonoBehaviour
         _gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         current = State.OPEN;
         time = 0;
-        
+
+        audioData = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -44,6 +48,7 @@ public class BearTrap : MonoBehaviour
                     time = 1;//Change for how long enemy is in trap
                     current = State.TRIGGERED;
                     _gm.ApplyDamage(transform.position, 50);
+                    audioData.PlayOneShot(close_trap, 0.2f);
                 }
                 break;
                 //Enemy is in bear trap 
