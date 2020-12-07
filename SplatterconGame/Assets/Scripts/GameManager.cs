@@ -69,6 +69,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject _bearTrapPrefab;
     [SerializeField]
+    private GameObject _cannonTrapPrefab;
+    [SerializeField]
     private GameObject _trapContainer;
 
 
@@ -316,6 +318,9 @@ public class GameManager : MonoBehaviour
                         _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
                     }
                     break;
+                case "Cannon Trap":
+                    _placing.StartPlacing(_cannonTrapPrefab, _trapContainer, ObjectPlaced);
+                    break;
                 default:
                     //_placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
                     break;
@@ -347,6 +352,9 @@ public class GameManager : MonoBehaviour
                         {
                             _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
                         }
+                        break;
+                    case "Cannon Trap":
+                        _placing.StartPlacing(_cannonTrapPrefab, _trapContainer, ObjectPlaced);
                         break;
                     default:
                         //_placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
@@ -492,6 +500,7 @@ public class GameManager : MonoBehaviour
                 }
                 //Set up Trap values
                 _select.SetAmount(SelectionGroups.TRAP, "Bear Trap", 100);
+                _select.SetAmount(SelectionGroups.TRAP, "Cannon Trap", 250);
 
                 UpdateAttendeeText();
                 RandomizeSpawns();

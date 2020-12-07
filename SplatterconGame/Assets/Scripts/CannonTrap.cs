@@ -6,6 +6,8 @@ public class CannonTrap : MonoBehaviour
 {
 
     public GameObject projectile;
+    [SerializeField]
+    private GameObject _shootParticles;
 
     private GameManager _gm;
     private float timer;
@@ -27,14 +29,15 @@ public class CannonTrap : MonoBehaviour
         {
             float AngleRad = Mathf.Atan2(lookAt.y - this.transform.position.y, lookAt.x - this.transform.position.x);
 
-            float AngleDeg = (180 / Mathf.PI) * AngleRad;
+            float AngleDeg = (180 / Mathf.PI) * AngleRad - 90;
 
-            transform.rotation = Quaternion.Euler(0, 0, AngleDeg);
+            //transform.rotation = Quaternion.Euler(0, 0, AngleDeg);
 
             timer += Time.deltaTime;
             if (timer > 1.5f)
             {
-                Destroy(Instantiate(projectile), 5.0f);
+                Instantiate(_shootParticles, transform.position + Vector3.up * 0.5f, _shootParticles.transform.rotation);
+                Destroy(Instantiate(projectile, transform.position + Vector3.up * 0.5f, Quaternion.Euler(0,0,AngleDeg)), 5.0f);
                 timer = 0;
             }
         }

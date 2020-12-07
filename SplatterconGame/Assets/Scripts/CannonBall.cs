@@ -5,6 +5,8 @@ using UnityEngine;
 public class CannonBall : MonoBehaviour
 {
     private GameManager _gm;
+    [SerializeField]
+    private GameObject _impactParticles;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +26,7 @@ public class CannonBall : MonoBehaviour
         if(collision.gameObject.tag == "Enemy")
         {
             _gm.ApplyDamage(transform.position, 20);
+            Instantiate(_impactParticles, transform.position, _impactParticles.transform.rotation);
             Destroy(gameObject);
         }
     }
