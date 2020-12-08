@@ -150,6 +150,11 @@ public class GameManager : MonoBehaviour
                     _select.UpdatePlayMask();
 
                     
+                    if( _round < 1 && _select.AllZero(SelectionGroups.BOOTH) && _select.PlayButtonClicked() )
+                    {
+                        _tutorialTextOne.SetActive(false);
+                        _tutorialTextTwo.SetActive(false);
+                    }
 
                     if(_select.PlayButtonClicked() && _select.AllZero(SelectionGroups.BOOTH))
                     {
@@ -162,11 +167,7 @@ public class GameManager : MonoBehaviour
                         _select.HideButtons();
                     }
                     
-                    if( _round < 1 && _select.AllZero(SelectionGroups.BOOTH) && _select.PlayButtonClicked() )
-                    {
-                        _tutorialTextOne.SetActive(false);
-                        _tutorialTextTwo.SetActive(false);
-                    }
+                    
 
                     break;
                 case GameState.Playing:
@@ -392,6 +393,10 @@ public class GameManager : MonoBehaviour
         else
             _select.AddMoney(75);
         _round = 0;
+        
+        _tutorialTextOne.SetActive(false);
+        _tutorialTextTwo.SetActive(false);
+        
         SetGameState(GameState.BoothPlacing);
     }
 
