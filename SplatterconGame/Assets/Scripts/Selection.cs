@@ -167,6 +167,7 @@ public class Selection : MonoBehaviour
     void SelectionButton()
     {
         _currentSelectedGroup.Increment();
+        OnSelectionChange?.Invoke();
     }
 
 
