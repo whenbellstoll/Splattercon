@@ -387,6 +387,10 @@ public class GameManager : MonoBehaviour
 
     public void SkipDemo(){
         _tutorial.SetActive(false);
+        if (_round == -1)
+            _select.AddMoney(150);
+        else
+            _select.AddMoney(75);
         _round = 0;
         SetGameState(GameState.BoothPlacing);
     }
@@ -435,6 +439,9 @@ public class GameManager : MonoBehaviour
                     _tutorialTextTwo.SetActive(true);
                 }
 
+                if (_round <= 0)
+                    _tutorial.SetActive(true);
+
                 //Set booth values
                 if (_round > 0){
                     _select.SetAmount(SelectionGroups.BOOTH, "Vampire Booth", Mathf.Min(MAX_BOOTHS, 1 + _round / 2));
@@ -444,8 +451,8 @@ public class GameManager : MonoBehaviour
                     _select.SetAmount(SelectionGroups.BOOTH, "Vampire Booth", Mathf.Min(MAX_BOOTHS, 1));
                     _select.SetAmount(SelectionGroups.BOOTH, "Ghost Booth", Mathf.Min(MAX_BOOTHS, 1));
                 }
-                _select.SetAmount(SelectionGroups.SPELL, "Fire Spell", 10);
-                _select.SetAmount(SelectionGroups.SPELL, "Snow Spell", 10);
+                _select.SetAmount(SelectionGroups.SPELL, "Fire Spell", 20);
+                _select.SetAmount(SelectionGroups.SPELL, "Snow Spell", 15);
 
                 _select.ShowButtons();
 
@@ -509,6 +516,8 @@ public class GameManager : MonoBehaviour
             case GameState.Playing:
                 Debug.Log("Now Playing");
                 //Set up attendee values
+                if(_round <= 0)
+                    _tutorial.SetActive(false);
                 SetAttendeePath();
 
                 break;
