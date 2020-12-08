@@ -47,7 +47,7 @@ public class BearTrap : MonoBehaviour
                     spriteRenderer.sprite = closedSprite;
                     time = 1;//Change for how long enemy is in trap
                     current = State.TRIGGERED;
-                    _gm.ApplyDamage(transform.position, 50);
+                    _gm.ApplyDamage(transform.position, 100);
                     audioData.PlayOneShot(close_trap, 0.2f);
                 }
                 break;
