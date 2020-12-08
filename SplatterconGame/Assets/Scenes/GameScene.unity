@@ -190,9 +190,22 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Gamer,
+  m_Text: 'To Whom It May Concern,
 
-    It''s time to become a gamer.'
+    I write this urgently to your conference,
+    "Splattercon!!!" there are malicious forces looking to disrupt it. I don''t have
+    much time to explain but you''re going to need to set up a few things to ensure
+    that people don''t get hurt. Vampires are going to come in and try to eat your
+    guests, to counter this I can provide you with some traps and spells. as you
+    arrange your conference, I''ve indicated where the beasts will be coming in with
+    the red arrow, set traps between that and the path you have the guests walk.
+    If that fails, you can use my spells to damage and slow down the monsters.
+
+
+    Good
+    Luck,
+
+    D'
 --- !u!222 &15607819
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4357,9 +4370,18 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Baby man,
+  m_Text: 'Hello again,
 
-    You are a baby man. Little baby man.'
+    Good job on making it through that first one, they''re
+    going to come again, but this time Ghosts are coming too, from now on more and
+    more monsters are going to come, and you''ll have to manage your resources in
+    order to comba them. Make sure more than half your guests survive each round
+    and you should be fine. Keep at it.
+
+
+    Good luck,
+
+    D'
 --- !u!222 &1058318750
 CanvasRenderer:
   m_ObjectHideFlags: 0
