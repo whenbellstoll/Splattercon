@@ -38,7 +38,7 @@ public class CannonBall : MonoBehaviour
     {
         if(collision.gameObject.tag == "Enemy")
         {
-            _gm.ApplyDamage(transform.position, 20);
+            _gm.ApplyDamage(transform.position, 30);
             Instantiate(_impactParticles, transform.position, _impactParticles.transform.rotation);
             Destroy(gameObject);
         }
