@@ -7,6 +7,7 @@ public class CannonBall : MonoBehaviour
     private GameManager _gm;
     [SerializeField]
     private GameObject _impactParticles;
+    private Vector3 lastDir;
 
     // Start is called before the first frame update
     void Start()
@@ -18,7 +19,13 @@ public class CannonBall : MonoBehaviour
     void Update()
     {
         Vector2 pos = _gm.GetNearestEnemy(transform.position);
-        transform.position = Vector2.MoveTowards(transform.position, pos, 10f * Time.deltaTime);
+        if (pos != Vector2.zero)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, pos, 10f * Time.deltaTime);
+            lastDir = pos - (Vector2)transform.position;
+        }
+        else
+            transform.position = Vector2.MoveTowards(transform.position, transform.position + lastDir * 10, 10 * Time.deltaTime);
 
         float AngleRad = Mathf.Atan2(pos.y - this.transform.position.y, pos.x - this.transform.position.x);
 

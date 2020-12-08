@@ -311,16 +311,16 @@ public class GameManager : MonoBehaviour
                 case "Bear Trap":
                     if (!_select.IsZero())
                     {
-                        _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
+                        _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced, CanPlaceTrap);
                     }
                     //Currently can not stop placing traps without clicking a button so you can place infinite traps
                     else
                     {
-                        _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
+                        _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced, CanPlaceTrap);
                     }
                     break;
                 case "Cannon Trap":
-                    _placing.StartPlacing(_cannonTrapPrefab, _trapContainer, ObjectPlaced);
+                    _placing.StartPlacing(_cannonTrapPrefab, _trapContainer, ObjectPlaced, CanPlaceTrap);
                     break;
                 default:
                     //_placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
@@ -346,16 +346,16 @@ public class GameManager : MonoBehaviour
                     case "Bear Trap":
                         if (!_select.IsZero())
                         {
-                            _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
+                            _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced, CanPlaceTrap);
                         }
                         //Currently can not stop placing traps without clicking a button so you can place infinite traps
                         else
                         {
-                            _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced);
+                            _placing.StartPlacing(_bearTrapPrefab, _trapContainer, ObjectPlaced, CanPlaceTrap);
                         }
                         break;
                     case "Cannon Trap":
-                        _placing.StartPlacing(_cannonTrapPrefab, _trapContainer, ObjectPlaced);
+                        _placing.StartPlacing(_cannonTrapPrefab, _trapContainer, ObjectPlaced, CanPlaceTrap);
                         break;
                     default:
                         //_placing.StartPlacing(_boothPrefab, _boothContainer, CanPlaceBooth);
@@ -417,6 +417,32 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < _ghostBoothContainer.transform.childCount; i++)
         {
             if (Vector2.SqrMagnitude(pos - (Vector2)_ghostBoothContainer.transform.GetChild(i).transform.position) <= 1.0f)
+            {
+                return true;
+            }
+        }
+        for (int i = 0; i < _trapContainer.transform.childCount; i++)
+        {
+            if (Vector2.SqrMagnitude(pos - (Vector2)_trapContainer.transform.GetChild(i).transform.position) <= 0.1f * 0.1f)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool CanPlaceTrap(Vector2 pos)
+    {
+        for (int i = 0; i < _vampireBoothContainer.transform.childCount; i++)
+        {
+            if (Vector2.SqrMagnitude(pos - (Vector2)_vampireBoothContainer.transform.GetChild(i).transform.position) <= 0.1f * 0.1f)
+            {
+                return true;
+            }
+        }
+        for (int i = 0; i < _ghostBoothContainer.transform.childCount; i++)
+        {
+            if (Vector2.SqrMagnitude(pos - (Vector2)_ghostBoothContainer.transform.GetChild(i).transform.position) <= 0.1f * 0.1f)
             {
                 return true;
             }
